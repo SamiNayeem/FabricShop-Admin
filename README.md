@@ -1,5 +1,5 @@
 # FabricShop
-E-commerce system for clothings
+E-commerce system for clothings (admin side)
 
 The e-commerce application project aims to develop a comprehensive online platform that facilitates seamless buying and selling of products. This platform will cater to a wide range of users, including individual consumers and businesses, providing a user-friendly interface and robust backend infrastructure. The primary objective is to create a reliable, scalable, and secure e-commerce solution that enhances user experience, drives sales, and supports the growth of online retail businesses.
 
