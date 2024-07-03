@@ -1,69 +1,72 @@
+import { error } from 'console';
 import type { NextApiRequest, NextApiResponse } from 'next';
 const pool = require('@/config/db')
 const databaseConnection = require('@/config/dbconnect')
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-    // view all the paymentmethod information
+    // view all the shippingmethods information
     if (req.method === 'GET') {
         try {
             // Process a GET request
-            const GetPaymentMethodInfo = "SELECT paymentmethod, createdat, createdby, updatedat, updatedby FROM paymentmethods WHERE activestatus = 1";
-            const [result] = await pool.execute(GetPaymentMethodInfo);
+            const GetShippingMethodsInfo = "SELECT shippingmethod, createdat, createdby, updatedat, updatedby FROM shippingmethods WHERE activestatus = 1";
+            const [result] = await pool.execute(GetShippingMethodsInfo);
             console.log([result])
             // debugger;
             res.status(200).json([result]);
         } catch (error) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
-        // Add nother paymentmethod
+        // Add another shippingmethods
     } else if (req.method === 'POST') {
-        const InsertPaymentMethodInfo = `
-            INSERT INTO paymentmethods (PaymentMethod, CreatedBy, CreatedAt)
+        const InsertShippingMethodsInfo = `
+            INSERT INTO shippingmethods (shippingmethod, createdby, createdat)
             VALUES (?, ?, NOW())
         `;
         
-        const { paymentmethod, createdby } = req.body;
+        const { shippingmethod, createdby } = req.body;
 
         try {
-            const result = await pool.execute(InsertPaymentMethodInfo, [paymentmethod, createdby]);
-            res.status(200).json({ message: 'payment method added successfully', result });
+            const result = await pool.execute(InsertShippingMethodsInfo, [shippingmethod, createdby]);
+            res.status(200).json({ message: 'shippingmethods added successfully', result });
             console.log("Inserted Successfully");
         } catch (error) {
-            console.error('Error inserting paymentmethod:', error);
+            console.error('Error inserting shippingmethods:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
 
-        // update paymentmethod information
+        // update shippingmethods information
     } else if (req.method === 'PUT'){
         try {
             const updateQuery = `
-                UPDATE paymentmethods
-                SET paymentmethod = ?, updatedby = ?, updatedat = NOW()
+                UPDATE shippingmethods
+                SET shippingmethod = ?, updatedby = ?, updatedat = NOW()
                 WHERE id = ${req.body.id}
             `;
-            const { paymentmethod, updatedby} = req.body;
-            const result = await pool.execute(updateQuery, [ paymentmethod, updatedby]);
+            const { shippingmethod, updatedby} = req.body;
+            const result = await pool.execute(updateQuery, [ shippingmethod, updatedby]);
 
             res.status(200).json(result);
 
         }catch{
             res.status(500).json({ error: 'Internal Server Error' });
+            console.error(error)
         }
     }else if(req.method === 'DELETE'){
 
         try{
-            const deleteshippingthod = `
+            const deleteshippingmethods = `
             UPDATE shippingmethods
-            SET activestatus = 0, deletedby = ?, deletedat = NOW()
+            SET activestatus = 0
             WHERE id = ${req.body.id}
         `
         const { deletedby } = req.body;
-        const [result] = await pool.execute(deleteshippingthod, [deletedby]);
+        const [result] = await pool.execute(deleteshippingmethods, [deletedby]);
 
         res.status(200).json([result]);
         }catch{
             res.status(500).json({ error: 'Internal Server Error' });
+            console.error(error)
         }
         
     }
