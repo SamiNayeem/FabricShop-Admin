@@ -7,7 +7,7 @@ export default function Home() {
 
   dbconnection()
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
+    <div className="bg-red-700 h-[30px] w-10 flex">
       <h1>Hello</h1>
       
     </div>
