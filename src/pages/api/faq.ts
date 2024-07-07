@@ -23,10 +23,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             INSERT INTO faq (questions, answers, createdby, createdat)
             VALUES (?, ?, ?, NOW())
         `;
+
+        const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM faq WHERE LOWER(questions) = LOWER(?) AND activestatus = 1
+        `;
         
         const { question, answer, createdby } = req.body;
 
         try {
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [question]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'question already exists' });
+            }
             const result = await pool.execute(InsertFAQInfo, [question, answer, createdby]);
             res.status(200).json({ message: 'FAQ added successfully', result });
             console.log("Inserted Successfully");
@@ -43,7 +54,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 SET questions = ?, answers = ?, updatedby = ?, updatedat = NOW()
                 WHERE id = ${req.body.id}
             `;
+
+            const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM faq WHERE LOWER(questions) = LOWER(?) AND activestatus = 1
+        `;
+
+
             const { question, answer, updatedby} = req.body;
+
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [question]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'question already exists' });
+            }
+
             const result = await pool.execute(updateQuery, [ question, answer, updatedby]);
 
             res.status(200).json(result);

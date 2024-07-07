@@ -23,10 +23,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             INSERT INTO orderstatus (status, createdby, createdat)
             VALUES (?, ?, NOW())
         `;
+
+        const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM orderstatus WHERE LOWER(status) = LOWER(?) 
+        `;
         
         const { status, createdby } = req.body;
 
         try {
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [status]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Status already exists' });
+            }
             const result = await pool.execute(InsertorderstatusInfo, [status, createdby]);
             res.status(200).json({ message: 'orderstatus added successfully', result });
             console.log("Inserted Successfully");
@@ -36,23 +47,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // update orderstatus information
-    } else if (req.method === 'PUT'){
+    } else if (req.method === 'PUT') {
         try {
             const updateQuery = `
-                UPDATE orderstatus
-                SET shippingmethod = ?, updatedby = ?, updatedat = NOW()
-                WHERE id = ${req.body.id}
+                UPDATE ordermaster
+                SET orderstatusid = ?
+                WHERE id = ?
             `;
-            const { shippingmethod, updatedby} = req.body;
-            const result = await pool.execute(updateQuery, [ shippingmethod, updatedby]);
 
+            
+
+            const { id, orderstatusid } = req.body;
+
+            
+            const [result] = await pool.execute(updateQuery, [orderstatusid, id]);
+    
             res.status(200).json(result);
-
-        }catch{
+        } catch (error) {
             res.status(500).json({ error: 'Internal Server Error' });
-            console.error(error)
+            console.error(error);
         }
-    }else if(req.method === 'DELETE'){
+    }
+    else if(req.method === 'DELETE'){
 
         try{
             const deleteorderstatus = `

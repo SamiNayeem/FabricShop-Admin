@@ -22,10 +22,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             INSERT INTO paymentmethods (PaymentMethod, CreatedBy, CreatedAt)
             VALUES (?, ?, NOW())
         `;
+
+        const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM faq WHERE LOWER(paymentmethod) = LOWER(?) AND activestatus = 1
+        `;
         
         const { paymentmethod, createdby } = req.body;
 
         try {
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [paymentmethod]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Payment method already exists' });
+            }
             const result = await pool.execute(InsertPaymentMethodInfo, [paymentmethod, createdby]);
             res.status(200).json({ message: 'payment method added successfully', result });
             console.log("Inserted Successfully");
@@ -42,7 +53,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 SET paymentmethod = ?, updatedby = ?, updatedat = NOW()
                 WHERE id = ${req.body.id}
             `;
+            const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM faq WHERE LOWER(paymentmethod) = LOWER(?) AND activestatus = 1
+        `;
             const { paymentmethod, updatedby} = req.body;
+
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [paymentmethod]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Payment method already exists' });
+            }
+
             const result = await pool.execute(updateQuery, [ paymentmethod, updatedby]);
 
             res.status(200).json(result);

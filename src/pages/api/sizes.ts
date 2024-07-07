@@ -22,10 +22,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             INSERT INTO sizes (name, chest, waist, createdby, createdat)
             VALUES (?, ?, ?, ?, NOW())
         `;
+
+        const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM sizes WHERE LOWER(name) = LOWER(?) AND activitystatus = 1
+        `;
         
         const { name, chest, waist, createdby } = req.body;
 
         try {
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [name]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Size name already exists' });
+            }
             const result = await pool.execute(InsertSizeInfo, [name, chest, waist, createdby]);
             res.status(200).json({ message: 'Size added successfully', result });
             console.log("Inserted Successfully");
@@ -42,7 +53,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 SET name = ?, chest = ?, waist = ?, updatedby = ?, updatedat = NOW()
                 WHERE id = ?
             `;
+
+            const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM sizes WHERE LOWER(name) = LOWER(?) AND activitystatus = 1
+        `;
+
             const { id, name, chest, waist, updatedby } = req.body;
+
+            const [rows] = await pool.execute(CheckDuplicateName, [name]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Size name already exists' });
+            }
 
             const result = await pool.execute(updateQuery, [name, chest, waist, updatedby, id]);
 

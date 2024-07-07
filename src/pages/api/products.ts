@@ -15,6 +15,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             await connection.beginTransaction();
 
+            const checkDuplicateProduct = `
+            SELECT COUNT(*) AS count FROM productmaster WHERE LOWER(name) = LOWER(?) OR LOWER(code) = LOWER(?)
+        `;
+        const [duplicateProductResult] = await connection.execute(checkDuplicateProduct, [name, code]);
+        const duplicateCount = duplicateProductResult[0].count;
+
+        if (duplicateCount > 0) {
+            await connection.rollback();
+            return res.status(400).json({ error: 'Product with the same name or code already exists' });
+        }
+        
             // Check category, color, size, brand active status
             const checkActiveStatus = `
                 SELECT 

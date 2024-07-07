@@ -23,10 +23,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             INSERT INTO shippingmethods (shippingmethod, createdby, createdat)
             VALUES (?, ?, NOW())
         `;
+
+        const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM categories WHERE LOWER(shippingmethod) = LOWER(?) AND activestatus = 1
+        `;
         
         const { shippingmethod, createdby } = req.body;
 
         try {
+
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [shippingmethod]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Shipping method already exists' });
+            }
             const result = await pool.execute(InsertShippingMethodsInfo, [shippingmethod, createdby]);
             res.status(200).json({ message: 'shippingmethods added successfully', result });
             console.log("Inserted Successfully");
@@ -43,7 +55,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 SET shippingmethod = ?, updatedby = ?, updatedat = NOW()
                 WHERE id = ${req.body.id}
             `;
+            const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM categories WHERE LOWER(shippingmethod) = LOWER(?) AND activestatus = 1
+        `;
             const { shippingmethod, updatedby} = req.body;
+
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [shippingmethod]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Shipping method already exists' });
+            }
             const result = await pool.execute(updateQuery, [ shippingmethod, updatedby]);
 
             res.status(200).json(result);

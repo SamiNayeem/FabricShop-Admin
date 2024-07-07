@@ -22,10 +22,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             INSERT INTO colors (name, createdby, createdat)
             VALUES (?, ?, NOW())
         `;
+
+        const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM colors WHERE LOWER(name) = LOWER(?)  AND activestatus = 1
+        `;
         
         const { name, createdby } = req.body;
 
         try {
+            // Check for duplicate name in a case-insensitive manner
+            const [rows] = await pool.execute(CheckDuplicateName, [name]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Color name already exists' });
+            }
             const result = await pool.execute(InsertColorInfo, [name, createdby]);
             res.status(200).json({ message: 'Color added successfully', result });
             console.log("Inserted Successfully");
@@ -42,7 +53,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 SET name = ?, updatedby = ?, updatedat = NOW()
                 WHERE id = ${req.body.id}
             `;
+
+            const CheckDuplicateName = `
+            SELECT COUNT(*) AS count FROM colors WHERE LOWER(name) = LOWER(?) AND activestatus = 1
+        `;
+
             const { name, updatedby} = req.body;
+
+            const [rows] = await pool.execute(CheckDuplicateName, [name]);
+            const count = rows[0].count;
+            
+            if (count > 0) {
+                return res.status(400).json({ error: 'Color name already exists' });
+            }
+
             const result = await pool.execute(updateQuery, [ name, updatedby]);
 
             res.status(200).json(result);
