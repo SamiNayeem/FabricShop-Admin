@@ -1,58 +1,57 @@
-"use client"
 import React, { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import axios from 'axios';
 import { Slide, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Link from "next/link";
 
 const LoginForm = () => {
+    const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, userpassword: password }),
+            const {data} = await axios.post('/api/login', {
+                username,
+                userpassword: password,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Login failed');
-            }
 
-            const data = await response.json();
             localStorage.setItem('token', data.token);
             console.log('Login successful');
-            toast.success("Login successful!"),{
+            toast.success("Login successful!", {
                 position: "top-center",
-                autoClose: 5000,
+                autoClose: 3000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
                 progress: undefined,
-                theme: "colored",
-                trasnsition: Slide
-            };
-            // Optionally redirect or update state upon successful login
-        } catch (error:any) {
+                theme: "light",
+                transition: Slide
+            });
+
+            // Redirect to dashboard or another page upon successful login
+            router.push('/Dashboard');
+
+
+        } catch (error: any) {
             console.error('Login error:', error.message);
-            toast.error("Invalid Credentials!"),{
+            toast.error("Invalid Credentials!", {
                 position: "top-center",
-                autoClose: 5000,
+                autoClose: 3000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
                 progress: undefined,
-                theme: "colored",
-                trasnsition: Slide
-            };
+                theme: "light",
+                transition: Slide
+            });
         }
     };
 
@@ -62,6 +61,7 @@ const LoginForm = () => {
                 <label className="block text-gray-700 text-sm font-bold mb-2">User Name</label>
                 <input
                     className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                    required
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
@@ -71,10 +71,14 @@ const LoginForm = () => {
             <div className="mt-4">
                 <div className="flex justify-between">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                    <a href="#" className="text-xs text-gray-500">Forget Password?</a>
+                    <Link href="/ForgotPassword">
+                        <span className="text-xs text-gray-500 cursor-pointer">Forget Password?</span>
+                    </Link>
+                    
                 </div>
                 <input
                     className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                    required
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -98,7 +102,7 @@ export default function Body() {
         <div className="py-2">
             <ToastContainer
                 position="top-center"
-                autoClose={5000}
+                autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick
@@ -106,7 +110,7 @@ export default function Body() {
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-                theme="colored"
+                theme="light"
                 transition={Slide}
             />
             <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
