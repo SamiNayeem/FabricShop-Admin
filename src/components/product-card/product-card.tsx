@@ -2,17 +2,19 @@ import React from "react";
 
 const ProductCard = () => {
     const available = "available";
-    const unavailable = "unavailable;"
+    const unavailable = "unavailable";
+    const quantity = 0;
     return (
-        <div className="w-80 bg-white shadow mb-10 ml-10">
+        <div className="w-80 bg-white shadow mb-10 ml-10 h-[400px] mt-2">
             <div className="h-48 w-full bg-gray-200 flex flex-col justify-between p-4 bg-cover bg-center"
-                style={{ backgroundImage: "url('https://images.pexels.com/photos/7989741/pexels-photo-7989741.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940')" }}>
+                style={{ backgroundImage: "url('https://images.pexels.com/photos/46212/men-s-shirt-shirt-attire-clothing-46212.jpeg?auto=compress&cs=tinysrgb&w=600" }}>
                 <div className="flex justify-between">
                     
                 </div>
                 <div>
                     <span className="uppercase text-xs bg-green-50 p-0.5 border-green-500 border rounded text-green-700 font-medium select-none">
-                        ${available}
+                        
+                        {available}
                     </span>
                 </div>
             </div>
@@ -23,7 +25,7 @@ const ProductCard = () => {
                 <div className="inline-flex items-center mt-2">
                     
                     <div className="bg-gray-100 border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-1 select-none">
-                        Available: 2
+                        In Stock: {quantity}
                     </div>
                     
                 </div>

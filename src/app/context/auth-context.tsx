@@ -1,6 +1,7 @@
 // src/context/AuthContext.tsx
-"use client"
+"use client";
 import React, { createContext, useState, useContext, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -22,16 +23,19 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>(defaultAuthState);
+  const router = useRouter();
 
   const login = (user: { username: string }) => {
     setAuthState({
       isAuthenticated: true,
       user,
     });
+    router.push('/Dashboard'); // Redirect to dashboard after login
   };
 
   const logout = () => {
     setAuthState(defaultAuthState);
+    router.push('/Login'); // Redirect to login after logout
   };
 
   return (
