@@ -1,9 +1,10 @@
 import React from "react";
+import Body from "./body";
 
 export default function Dashboard(){
     return(
         <div>
-            <h1>Dashboard</h1>
+            <Body/>
         </div>
     )
 }

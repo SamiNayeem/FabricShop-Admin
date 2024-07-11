@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const Body = () => {
   return (
-    <div className="w-full shadow-md mb-20">
+    <div className="w-full shadow-md">
       <div className="mx-auto max-w-7xl">
         <nav className="bg-white">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
@@ -55,7 +55,7 @@ const Body = () => {
             {/* Sign in button */}
             <div>
               <a
-                href="#"
+                href="/Login"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800"
               >
                 Sign in

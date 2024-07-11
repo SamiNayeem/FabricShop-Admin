@@ -1,30 +1,53 @@
 import { error } from 'console';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from "next/server";
 const pool = require('@/config/db')
 const databaseConnection = require('@/config/dbconnect')
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+type UserRequest = {
+    name: string;
+    userid: number;
+    createdby: number;
+    id: number;
+    updatedby: number;
+    createdny: number;
+    products: number;
+    cartDetailId: number;
+    newQuantity: number;
+
+}
+
+export async function handler(req: NextRequest, res: NextResponse) {
 
     // view all the Brand information
     if (req.method === 'GET') {
         try {
             // Process a GET request
-            const { userid }: { userid: number } = req.body;
+            const {userid} = await req.json() as UserRequest;
+            // const { userid }: { userid: number } = req.body;
             const getCartInfo = `CALL GetUserCart(${userid}); `
             const [result] = await pool.execute(getCartInfo);
             console.log([result])
             // debugger;
-            res.status(200).json([result]);
+            return NextResponse.json(
+                [result],
+                { status: 200 }
+            )
         } catch (error) {
-            res.status(500).json({ error: 'Internal Server Error' });
+            return NextResponse.json(
+                { error: 'Internal Server Error' },
+                { status: 500 }
+            )
             console.error(error);
         }
         // Add nother Brand
     } else if (req.method === 'POST') {
-        const { userid, products } = req.body;
+        const { userid, products } = await req.json() as UserRequest;
     
         if (!userid || !products || !Array.isArray(products) || products.length === 0) {
-            return res.status(400).json({ message: 'UserId and a non-empty array of products are required' });
+            return NextResponse.json(
+                { error: 'UserId and Products are required' },
+                { status: 400 }
+            )
         }
     
         const connection = await pool.getConnection();
@@ -75,11 +98,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
             // Commit transaction
             await connection.commit();
-            res.status(201).json({ message: 'Products added to cart successfully', cartDetailIds });
+            return NextResponse.json(
+                { message: 'Products added to cart successfully', cartDetailIds },
+                { status: 200 }
+            )
         } catch (error) {
             await connection.rollback();
             console.error('Error adding products to cart:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            return NextResponse.json(
+                { error: 'Internal Server Error' },
+                { status: 500 }
+            )
         } finally {
             connection.release();
         }
@@ -89,10 +118,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
      else if (req.method === 'PUT') {
         
 
-    const { userid, cartDetailId, newQuantity } = req.body;
+    const { userid, cartDetailId, newQuantity } = await req.json() as UserRequest;
 
     if (!userid || !cartDetailId || !newQuantity) {
-        return res.status(400).json({ message: 'UserId, CartDetailId, and NewQuantity are required' });
+        return NextResponse.json(
+            { error: 'UserId, CartDetailId, and NewQuantity are required' },
+            { status: 400 }
+        )
     }
 
     const connection = await pool.getConnection();
@@ -108,7 +140,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (cartDetailRows.length === 0) {
             await connection.rollback();
-            return res.status(404).json({ message: 'Cart detail not found for the user' });
+            return NextResponse.json(
+                { message: 'Cart detail not found for the user' },
+                { status: 404 }
+            )
         }
 
         const productid = cartDetailRows[0].ProductMasterId;
@@ -121,7 +156,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (priceRows.length === 0) {
             await connection.rollback();
-            return res.status(404).json({ message: 'Product details not found' });
+            return NextResponse.json(
+                { message: 'Product price not found' },
+                { status: 404 }
+            )
         }
 
         const price = priceRows[0].price;
@@ -139,21 +177,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Commit transaction
         await connection.commit();
-        res.status(200).json({ message: 'Cart product updated successfully' });
+        return NextResponse.json(
+            { message: 'Cart product updated successfully' },
+            { status: 200 }
+        )
     } catch (error) {
         await connection.rollback();
         console.error('Error updating cart product:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        return NextResponse.json(
+            { error: 'Internal Server Error' },
+            { status: 500 }
+        )
     } finally {
         connection.release();
         }
     }
     else if (req.method === 'DELETE') {
         try {
-            const { userid, cartDetailId } = req.body;
+            const { userid, cartDetailId } =await req.json() as UserRequest;
 
             if (!userid || !cartDetailId) {
-                return res.status(400).json({ message: 'UserId and CartDetailId are required' });
+                return NextResponse.json(
+                    { error: 'UserId and CartDetailId are required' },
+                    { status: 400 }
+                )
             }
 
             const connection = await pool.getConnection();
@@ -169,7 +216,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 if (cartDetailRows.length === 0) {
                     await connection.rollback();
-                    return res.status(404).json({ message: 'Cart detail not found for the user' });
+                    return NextResponse.json(
+                        { message: 'Cart detail not found for the user' },
+                        { status: 404 }
+                    )
                 }
 
                 // Delete specific product from cart details
@@ -180,20 +230,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 // Commit transaction
                 await connection.commit();
-                res.status(200).json({ message: 'Product deleted from cart successfully' });
+                return NextResponse.json(
+                    { message: 'Cart product deleted successfully' },
+                    { status: 200 }
+                )
             } catch (error) {
                 await connection.rollback();
                 console.error('Error deleting product from cart:', error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                return NextResponse.json(
+                    { error: 'Internal Server Error' },
+                    { status: 500 }
+                )
             } finally {
                 connection.release();
             }
         } catch (error) {
             console.error('Database connection error:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            return NextResponse.json(
+                { error: 'Internal Server Error' },
+                { status: 500 }
+            )
         }
     } else {
-        res.status(405).json({ error: 'Method Not Allowed' });
+        return NextResponse.json(
+            { error: 'Method Not Allowed' },
+            { status: 405 }
+        )
     }
 }
 

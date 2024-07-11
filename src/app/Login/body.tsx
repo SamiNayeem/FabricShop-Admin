@@ -71,7 +71,7 @@ const LoginForm = () => {
             <div className="mt-4">
                 <div className="flex justify-between">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                    <Link href="/ForgotPassword">
+                    <Link href="/forgot-password">
                         <span className="text-xs text-gray-500 cursor-pointer">Forget Password?</span>
                     </Link>
                     
@@ -99,7 +99,7 @@ const LoginForm = () => {
 
 export default function Body() {
     return (
-        <div className="py-2">
+        <div className="py-2 mt-10 mb-10">
             <ToastContainer
                 position="top-center"
                 autoClose={3000}
