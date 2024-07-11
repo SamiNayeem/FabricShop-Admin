@@ -1,12 +1,15 @@
+// src/app/components/Login.tsx
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 import { Slide, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Link from "next/link";
+import { useAuth } from '@/app/context/auth-context';
 
 const LoginForm = () => {
     const router = useRouter();
+    const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -20,8 +23,8 @@ const LoginForm = () => {
                 userpassword: password,
             });
 
-
             localStorage.setItem('token', data.token);
+            login({ username });
             console.log('Login successful');
             toast.success("Login successful!", {
                 position: "top-center",
@@ -37,8 +40,6 @@ const LoginForm = () => {
 
             // Redirect to dashboard or another page upon successful login
             router.push('/Dashboard');
-
-
         } catch (error: any) {
             console.error('Login error:', error.message);
             toast.error("Invalid Credentials!", {
@@ -74,7 +75,6 @@ const LoginForm = () => {
                     <Link href="/forgot-password">
                         <span className="text-xs text-gray-500 cursor-pointer">Forget Password?</span>
                     </Link>
-                    
                 </div>
                 <input
                     className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -122,7 +122,7 @@ export default function Body() {
                     <p className="text-xl text-gray-600 text-center">Admin Portal</p>
 
                     <LoginForm />
-                    
+
                     <div className="mt-4 flex items-center justify-between">
                         <span className="border-b w-1/5 lg:w-1/4"></span>
                         <a href="#" className="text-xs text-center text-gray-500 uppercase">or login with google</a>

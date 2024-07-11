@@ -6,7 +6,7 @@ export default function Body(){
     return(
         <div>
             <Menu/>
-            {/* <ProductCard/> */}
+            <ProductCard/>
         </div>
         
     )

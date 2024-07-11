@@ -1,32 +1,20 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import React from "react";
+// src/app/layout.tsx
+import React from 'react';
+import { AuthProvider } from '@/app/context/auth-context';
+import Navbar from '../components/navbar/navbar';
+import './globals.css';
 
-import Navbar from "@/components/navbar/navbar";
-import Footer from "@/components/Footer/footer";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "FabricShop_Admin",
-  description: "Admin Side of FabricShop",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    
     <html lang="en">
-      
-      <body className={inter.className}>
-      <Navbar/>
-        {children}
-      <Footer/>
-        </body>
+      <body>
+        <AuthProvider>
+          <Navbar />
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
+
+export default RootLayout;

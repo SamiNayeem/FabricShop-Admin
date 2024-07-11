@@ -1,8 +1,13 @@
-// body.js
-import React from "react";
-import Image from "next/image";
+"use client"
+import React from 'react';
+import Image from 'next/image';
+import { useAuth } from '../../app/context/auth-context';
 
-const Body = () => {
+// console.log(useAuth); // This should log the function definition
+
+const Navbar = () => {
+  const { authState } = useAuth();
+
   return (
     <div className="w-full shadow-md">
       <div className="mx-auto max-w-7xl">
@@ -11,7 +16,6 @@ const Body = () => {
             {/* Logo */}
             <div className="flex-shrink-0">
               <a href="#">
-                
                 <Image
                   src="/images/Logo/png/logo-no-background.png"
                   alt="FabricShop"
@@ -26,40 +30,37 @@ const Body = () => {
             <div className="flex-1 flex justify-center">
               <ul className="flex space-x-8">
                 <li>
-                  <a
-                    href="#"
-                    className="font-medium text-gray-500 hover:text-gray-900 "
-                  >
+                  <a href="#" className="font-medium text-gray-500 hover:text-gray-900">
                     Home
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="font-medium text-gray-500 hover:text-gray-900"
-                  >
+                  <a href="#" className="font-medium text-gray-500 hover:text-gray-900">
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="font-medium text-gray-500 hover:text-gray-900"
-                  >
+                  <a href="#" className="font-medium text-gray-500 hover:text-gray-900">
                     Contact Us
                   </a>
                 </li>
               </ul>
             </div>
 
-            {/* Sign in button */}
+            {/* Sign in button or username */}
             <div>
-              <a
-                href="/Login"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800"
-              >
-                Sign in
-              </a>
+              {authState.isAuthenticated ? (
+                <span className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-900">
+                  {authState.user?.username}
+                </span>
+              ) : (
+                <a
+                  href="/Login"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-full text-white bg-gray-900 hover:bg-gray-800"
+                >
+                  Sign in
+                </a>
+              )}
             </div>
           </div>
         </nav>
@@ -68,4 +69,4 @@ const Body = () => {
   );
 };
 
-export default Body;
+export default Navbar;
