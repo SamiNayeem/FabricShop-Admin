@@ -1,10 +1,36 @@
+"use client"
 import React from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import axios from "axios";
 
 const ProductCard = () => {
+
+  const router = useRouter();
+  const [image, setImage] = useState('');
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState(0);
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+  const [availabilityStatus, setAvailabilityStatus] = useState(0);
+  const [brand, setBrand] = useState(0);
     const shirtImage = "/images/shirt.jpg"; // Assuming the image path is correct
+
+    try{
+      const {data} = axios.get('api/products', {
+        name,
+        price,
+        description,
+        category,
+        quantity,
+        availabilityStatus,
+        brand
+      })
+    }catch{
+    
+    }
   
-    const quantity = 5;
-    const availabilityStatus = quantity > 0 ? "available" : "unavailable";
   
     return (
       <div className="w-full md:w-80 bg-white mb-10 mt-2 mx-auto shadow-lg">

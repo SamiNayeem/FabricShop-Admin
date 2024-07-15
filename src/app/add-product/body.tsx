@@ -58,7 +58,7 @@ const Body = () =>{
                                 {/* <label htmlFor="image" className="leading-7 text-sm text-gray-600">Product Image</label>
                                 <input id="image" name="image" type="image"className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-2 transition-colors duration-200 ease-in-out"/> */}
                                 
-                            <label className="block mb-2 text-sm font-medium text-gray-900 h-10" htmlFor="file_input">Upload file</label>
+                            <label className="block mb-2 text-sm font-medium text-gray-900 h-10" htmlFor="file_input">Upload Picture</label>
                             <input className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 h-9 " aria-describedby="file_input_help" id="file_input" type="file"/>
                             <p className="mt-1 text-sm text-gray-500 " id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
 

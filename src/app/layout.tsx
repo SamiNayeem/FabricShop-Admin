@@ -2,6 +2,7 @@
 import React from 'react';
 import { AuthProvider } from '@/app/context/auth-context';
 import Navbar from '../components/navbar/navbar';
+import ProtectedRoute from '@/components/protected-route/protected-route';
 
 import { Metadata } from 'next';
 import Footer from '@/components/Footer/footer';

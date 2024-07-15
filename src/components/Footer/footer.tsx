@@ -3,7 +3,7 @@ import React from "react";
 export default function Footer() {
   return (
     <div>
-    <footer className="w-full bg-gray-900  bottom-0">
+    <footer className="w-full bg-gray-900  bottom-0 mt-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* <!--Grid--> */}
             <div className="py-16 flex justify-between items-center flex-col gap-8 lg:flex-row">
