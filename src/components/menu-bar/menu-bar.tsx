@@ -99,7 +99,7 @@ export default function Menu() {
 
             <a
               className="flex items-center px-3 py-2 text-gray-600 transition duration-300 ease-in-out transform rounded-lg hover:bg-gray-100"
-              href="#"
+              href="/color-list"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -235,7 +235,7 @@ export default function Menu() {
                 />
               </svg>
 
-              <span className="mx-2 text-sm font-medium">Setting</span>
+              <span className="mx-2 text-sm font-medium">Profile Setting</span>
             </a>
           </div>
         </nav>
