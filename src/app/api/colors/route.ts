@@ -7,11 +7,12 @@ type UserRequest = {
     id?: number;
     updatedby?: number;
     deletedby?: number;
+    hexcode?: string;
 }
 
 export async function GET(req: NextRequest) {
     try {
-        const GetColorInfo = "SELECT id, name, createdat, createdby, updatedat, updatedby, activestatus FROM colors WHERE activestatus = 1";
+        const GetColorInfo = "SELECT id, name, hexcode, createdat, createdby, updatedat, updatedby, activestatus FROM colors WHERE activestatus = 1";
         const [result] = await pool.execute(GetColorInfo);
         return NextResponse.json(result, { status: 200 });
     } catch (error) {
@@ -21,8 +22,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const { name, createdby } = await req.json() as UserRequest;
-    const InsertColorInfo = `INSERT INTO colors (name, createdby, createdat) VALUES (?, ?, NOW())`;
+    const { name, hexcode, createdby } = await req.json() as UserRequest;
+    const InsertColorInfo = `INSERT INTO colors (name, hexcode, createdby, createdat) VALUES (?, ?, ?, NOW())`;
     const CheckDuplicateName = `SELECT COUNT(*) AS count FROM colors WHERE LOWER(name) = LOWER(?) AND activestatus = 1`;
 
     try {
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
         if (count > 0) {
             return NextResponse.json({ error: 'Color name already exists' }, { status: 400 });
         }
-        const result = await pool.execute(InsertColorInfo, [name, createdby]);
+        const result = await pool.execute(InsertColorInfo, [name, hexcode, createdby]);
         return NextResponse.json({ message: 'Color added successfully', result }, { status: 200 });
     } catch (error) {
         console.error('Error inserting Color:', error);

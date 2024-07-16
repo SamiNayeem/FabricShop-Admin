@@ -105,13 +105,13 @@ const Body = () => {
                                                 className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                             />
                                             <button 
-                                                className="mt-2 w-fit px-2 py-2 rounded-full bg-gray-800 text-white" 
+                                                className="mt-2 w-fit px-2 py-2 rounded-full bg-blue-500 text-white" 
                                                 onClick={() => handleUpdate(brand.id)}
                                             >
                                                 Update
                                             </button>
                                             <button 
-                                                className="mt-2 w-fit px-2 py-2 rounded-full bg-gray-800 text-white" 
+                                                className="float-right mt-2 w-fit px-2 py-2 rounded-full bg-red-500 text-white" 
                                                 onClick={() => setEditingBrand(null)}
                                             >
                                                 Cancel

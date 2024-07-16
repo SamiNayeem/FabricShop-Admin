@@ -5,8 +5,10 @@ import Image from "next/image";
 const Body = () => {
     const [colors, setColors] = useState<any[]>([]);
     const [newColorName, setNewColorName] = useState<string>("");
+    const [newHexCode, setNewHexCode] = useState<string>("");
     const [editingColor, setEditingColor] = useState<number | null>(null);
     const [updatedColorName, setUpdatedColorName] = useState<string>("");
+    const [updatedHexCode, setUpdatedHexCode] = useState<string>("");
 
     useEffect(() => {
         const fetchColors = async () => {
@@ -35,11 +37,12 @@ const Body = () => {
 
     const handleInsert = async () => {
         try {
-            const response = await axios.post(`/api/colors`, { name: newColorName, createdby: 12 });
+            const response = await axios.post(`/api/colors`, { name: newColorName, hexcode: newHexCode, createdby: 12 });
             if (response.status === 200) {
-                setColors(prevColors => [...prevColors, { id: response.data.result.insertId, name: newColorName, activestatus: 1 }]);
+                setColors(prevColors => [...prevColors, { id: response.data.result.insertId, name: newColorName, hexcode: newHexCode, activestatus: 1 }]);
                 console.log('Color added successfully');
                 setNewColorName("");  // Clear the input field after successful insertion
+                setNewHexCode("");  // Clear the input field after successful insertion
             }
         } catch (error) {
             console.error('Error adding color:', error);
@@ -48,21 +51,23 @@ const Body = () => {
 
     const handleUpdate = async (id: number) => {
         try {
-            const response = await axios.put(`/api/colors`, { id, name: updatedColorName, updatedby: 12 });
+            const response = await axios.put(`/api/colors`, { id, name: updatedColorName, hexcode: updatedHexCode, updatedby: 12 });
             if (response.status === 200) {
-                setColors(prevColors => prevColors.map(color => color.id === id ? { ...color, name: updatedColorName } : colors));
+                setColors(prevColors => prevColors.map(color => color.id === id ? { ...color, name: updatedColorName, hexcode: updatedHexCode } : color));
                 console.log('Color updated successfully');
                 setEditingColor(null);  // Exit edit mode
                 setUpdatedColorName("");  // Clear the input field after successful update
+                setUpdatedHexCode("");  // Clear the input field after successful update
             }
         } catch (error) {
             console.error('Error updating color:', error);
         }
     };
 
-    const startEditing = (id: number, currentName: string) => {
+    const startEditing = (id: number, currentName: string, currentHexCode: string) => {
         setEditingColor(id);
         setUpdatedColorName(currentName);
+        setUpdatedHexCode(currentHexCode);
     };
 
     return (
@@ -74,14 +79,25 @@ const Body = () => {
             <div className="flex w-fit">
                 <div className="p-2 w-1/4">
                     <div className="relative">
-                        <label htmlFor="color" className="leading-7 text-sm text-gray-600">Insert New color Name</label>
+                        <label htmlFor="color" className="leading-7 text-sm text-gray-600">Insert New Color Name</label>
                         <input 
                             type="text" 
                             id="color" 
                             name="color" 
                             className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                             value={newColorName}
-                            onChange={(e) => setNewColorName(e.target.value)}
+                            onChange={(e) => setNewColorName(e.target.value)} 
+                            required
+                        />
+                        <label htmlFor="colorhex" className="leading-7 text-sm text-gray-600">Insert Hex Code</label>
+                        <input 
+                            type="text" 
+                            id="colorhex" 
+                            name="colorhex" 
+                            className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                            value={newHexCode}
+                            onChange={(e) => setNewHexCode(e.target.value)}
+                            required
                         />
                         <button 
                             className="mt-2 w-fit px-2 py-2 rounded-full bg-gray-800 text-white" 
@@ -104,21 +120,32 @@ const Body = () => {
                                                 onChange={(e) => setUpdatedColorName(e.target.value)}
                                                 className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                             />
+                                            <input 
+                                                type="text" 
+                                                value={updatedHexCode}
+                                                onChange={(e) => setUpdatedHexCode(e.target.value)}
+                                                className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out mt-1"
+                                            />
                                             <button 
-                                                className="mt-2 w-fit px-2 py-2 rounded-full bg-gray-800 text-white" 
+                                                className="mt-2 w-fit px-2 py-2 rounded-full bg-blue-500 text-white" 
                                                 onClick={() => handleUpdate(color.id)}
                                             >
                                                 Update
                                             </button>
                                             <button 
-                                                className="mt-2 w-fit px-2 py-2 rounded-full bg-gray-800 text-white" 
+                                                className="float-right mt-2 w-fit px-2 py-2 rounded-full bg-red-500 text-white" 
                                                 onClick={() => setEditingColor(null)}
                                             >
                                                 Cancel
                                             </button>
                                         </div>
                                     ) : (
-                                        <h3 className="text-lg leading-6 font-medium text-gray-900">{color.name}</h3>
+                                        <div>
+                                            <h3 className="text-lg leading-6 font-medium text-gray-900">{color.name}</h3>
+                                            <svg width="30px" height="40px" viewBox="0 -2 24 24" id="meteor-icon-kit__solid-tshirt" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fillRule="evenodd" clipRule="evenodd" d="M5.00009 9.3873L3.31634 9.9485C2.7924 10.1232 2.22609 9.84 2.05144 9.3161L0.0514698 3.31616C-0.105899 2.84405 0.107827 2.32807 0.552933 2.10552L4.55288 0.10555C4.69174 0.03612 4.84485 -0.00003 5.00009 -0.00003H8.00005C8.31481 -0.00003 8.61119 0.14817 8.80004 0.39997C9.61118 1.48148 10.6481 1.99995 12 1.99995C13.3519 1.99995 14.3888 1.48148 15.2 0.39997C15.3888 0.14817 15.6852 -0.00003 16 -0.00003H18.9999C19.1552 -0.00003 19.3083 0.03612 19.4471 0.10555L23.4471 2.10552C23.8922 2.32807 24.1059 2.84405 23.9485 3.31616L21.9486 9.3161C21.7739 9.84 21.2076 10.1232 20.6837 9.9485L18.9999 9.3873V18.9997C18.9999 19.552 18.5522 19.9997 17.9999 19.9997H6.00008C5.4478 19.9997 5.00009 19.552 5.00009 18.9997V9.3873z" fill={color.hexcode}/>
+                                            </svg>
+                                        </div>
                                     )}
                                 </div>
                                 <div className="mt-4 flex items-center justify-between">
@@ -127,7 +154,7 @@ const Body = () => {
                                             {color.activestatus === 1 ? 'Active' : color.activestatus === 0 ? 'Inactive' : ''}
                                         </span>
                                     </p>
-                                    <button className="font-medium text-indigo-600 hover:text-indigo-500" onClick={() => startEditing(color.id, color.name)}>
+                                    <button className="font-medium text-indigo-600 hover:text-indigo-500" onClick={() => startEditing(color.id, color.name, color.hexcode)}>
                                         <Image
                                             src={"/images/edit.png"}
                                             width={25}
