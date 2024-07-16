@@ -1,95 +1,83 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-const pool = require('@/config/db')
-const databaseConnection = require('@/config/dbconnect')
+import { NextRequest, NextResponse } from "next/server";
+const pool = require('@/config/db');
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+type UserRequest = {
+    name?: string;
+    createdby?: number;
+    id?: number;
+    updatedby?: number;
+    deletedby?: number;
+    chest?: number;
+    waist?: number;
+}
 
-    // view all the size information
-    if (req.method === 'GET') {
-        try {
-            // Process a GET request
-            const GetSizeInfo = "SELECT name, chest, waist, createdat, createdby, updatedat, updatedby FROM sizes WHERE activitystatus = 1";
-            const [result] = await pool.execute(GetSizeInfo);
-            console.log([result])
-            // debugger;
-            res.status(200).json([result]);
-        } catch (error) {
-            res.status(500).json({ error: 'Internal Server Error' });
+export async function GET(req: NextRequest) {
+    try {
+        const GetSizeInfo = "SELECT id, name, chest, waist, activitystatus, createdat, createdby, updatedat, updatedby FROM sizes WHERE activitystatus = 1";
+        const [result] = await pool.execute(GetSizeInfo);
+        return NextResponse.json(result, { status: 200 });
+    } catch (error) {
+        console.error('Error fetching sizes:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
+
+export async function POST(req: NextRequest) {
+    const { name, chest, waist, createdby } = await req.json() as UserRequest;
+    if (!name || chest === undefined || waist === undefined || !createdby) {
+        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    const InsertSizeInfo = `INSERT INTO sizes (name, chest, waist, createdby, createdat) VALUES (?, ?, ?, ?, NOW())`;
+    const CheckDuplicateName = `SELECT COUNT(*) AS count FROM sizes WHERE LOWER(name) = LOWER(?) AND activitystatus = 1`;
+
+    try {
+        const [rows] = await pool.execute(CheckDuplicateName, [name]);
+        const count = rows[0].count;
+        if (count > 0) {
+            return NextResponse.json({ error: 'Size name already exists' }, { status: 400 });
         }
-        // Add nother size
-    } else if (req.method === 'POST') {
-        const InsertSizeInfo = `
-            INSERT INTO sizes (name, chest, waist, createdby, createdat)
-            VALUES (?, ?, ?, ?, NOW())
-        `;
+        const result = await pool.execute(InsertSizeInfo, [name, chest, waist, createdby]);
+        return NextResponse.json({ message: 'Size added successfully', result }, { status: 200 });
+    } catch (error) {
+        console.error('Error inserting Size:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
 
-        const CheckDuplicateName = `
-            SELECT COUNT(*) AS count FROM sizes WHERE LOWER(name) = LOWER(?) AND activitystatus = 1
-        `;
-        
-        const { name, chest, waist, createdby } = req.body;
+export async function PUT(req: NextRequest) {
+    const { id, name, chest, waist, updatedby } = await req.json() as UserRequest;
+    if (!id || !name || chest === undefined || waist === undefined || !updatedby) {
+        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    const updateQuery = `UPDATE sizes SET name = ?, chest = ?, waist = ?, updatedby = ?, updatedat = NOW() WHERE id = ?`;
+    const CheckDuplicateName = `SELECT COUNT(*) AS count FROM sizes WHERE LOWER(name) = LOWER(?) AND activitystatus = 1 AND id != ?`;
 
-        try {
-            // Check for duplicate name in a case-insensitive manner
-            const [rows] = await pool.execute(CheckDuplicateName, [name]);
-            const count = rows[0].count;
-            
-            if (count > 0) {
-                return res.status(400).json({ error: 'Size name already exists' });
-            }
-            const result = await pool.execute(InsertSizeInfo, [name, chest, waist, createdby]);
-            res.status(200).json({ message: 'Size added successfully', result });
-            console.log("Inserted Successfully");
-        } catch (error) {
-            console.error('Error inserting Size:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+    try {
+        const [rows] = await pool.execute(CheckDuplicateName, [name, id]);
+        const count = rows[0].count;
+        if (count > 0) {
+            return NextResponse.json({ error: 'Size name already exists' }, { status: 400 });
         }
+        const result = await pool.execute(updateQuery, [name, chest, waist, updatedby, id]);
+        return NextResponse.json({ message: 'Size updated successfully', result }, { status: 200 });
+    } catch (error) {
+        console.error('Error updating Size:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
 
-        // update size information
-    } else if (req.method === 'PUT') {
-        try {
-            const updateQuery = `
-                UPDATE sizes
-                SET name = ?, chest = ?, waist = ?, updatedby = ?, updatedat = NOW()
-                WHERE id = ?
-            `;
+export async function DELETE(req: NextRequest) {
+    const { id, deletedby } = await req.json() as UserRequest;
+    if (!id || !deletedby) {
+        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    const deleteSize = `UPDATE sizes SET activitystatus = 0, deletedby = ?, deletedat = NOW() WHERE id = ?`;
 
-            const CheckDuplicateName = `
-            SELECT COUNT(*) AS count FROM sizes WHERE LOWER(name) = LOWER(?) AND activitystatus = 1
-        `;
-
-            const { id, name, chest, waist, updatedby } = req.body;
-
-            const [rows] = await pool.execute(CheckDuplicateName, [name]);
-            const count = rows[0].count;
-            
-            if (count > 0) {
-                return res.status(400).json({ error: 'Size name already exists' });
-            }
-
-            const result = await pool.execute(updateQuery, [name, chest, waist, updatedby, id]);
-
-            res.status(200).json({ message: 'Size updated successfully', result });
-        } catch (error) {
-            console.error('Error updating size:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    
-    }else if(req.method === 'DELETE'){
-
-        try{
-            const deleteSize = `
-            UPDATE sizes
-            SET activitystatus = 0, deletedby = ?, deletedat = NOW()
-            WHERE id = ${req.body.id}
-        `
-        const { deletedby } = req.body;
-        const [result] = await pool.execute(deleteSize, [deletedby]);
-
-        res.status(200).json([result]);
-        }catch{
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-        
+    try {
+        const result = await pool.execute(deleteSize, [deletedby, id]);
+        return NextResponse.json({ message: 'Size deleted successfully', result }, { status: 200 });
+    } catch (error) {
+        console.error('Error deleting Size:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-const preloader = () => {
+const Preloader = () => {
     return (
         <div aria-label="Loading..." role="status" className="flex items-center space-x-2">
     <svg className="h-20 w-20 animate-spin stroke-gray-500" viewBox="0 0 256 256">
@@ -24,4 +24,4 @@ const preloader = () => {
     );
 };
 
-export default preloader;
+export default Preloader;
