@@ -13,15 +13,16 @@ export default function Menu() {
   return (
 
     <aside className="flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l mt-2 mr-10 left-0">
-      <a href="#">
+      {/* <a href="#">
         <Image
           src="/images/menu.png"
           alt="FabricShop"
           width={50}
           height={40}
           className="w-25 h-30"
+          style={{height:"auto", width: "auto"}}
         />
-      </a>
+      </a> */}
 
       <div className="flex flex-col justify-between flex-1 mt-6">
         <nav className="-mx-3 space-y-6">
@@ -247,7 +248,7 @@ export default function Menu() {
 
             <a
               className="flex items-center px-3 py-2 text-gray-600 transition duration-300 ease-in-out transform rounded-lg hover:bg-gray-100"
-              href="#"
+              href="/user-list2"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 8a6 6 0 1 1 12 0A6 6 0 0 1 6 8zm2 10a3 3 0 0 0-3 3 1 1 0 1 1-2 0 5 5 0 0 1 5-5h8a5 5 0 0 1 5 5 1 1 0 1 1-2 0 3 3 0 0 0-3-3H8z" fill="#0D0D0D"/></svg>
 
