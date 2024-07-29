@@ -1,79 +1,65 @@
-"use client"
 import React from "react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import axios from "axios";
+import { useRouter } from 'next/navigation';
 
-const ProductCard = () => {
+const ProductCard = ({ product }: { product: any }) => {
+  const { Name, Quantity, Description, Price, BrandName, ImageUrl, ProductMasterId } = product;
+  const imageUrl = ImageUrl.length > 0 ? ImageUrl[0] : '../images/Image_not_available.png';
+
+  // Determine availability based on quantity
+  const isAvailable = Quantity > 0;
 
   const router = useRouter();
-  const [image, setImage] = useState('');
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState(0);
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(0);
-  const [quantity, setQuantity] = useState(0);
-  const [availabilityStatus, setAvailabilityStatus] = useState(0);
-  const [brand, setBrand] = useState(0);
-    const shirtImage = "/images/shirt.jpg"; // Assuming the image path is correct
 
-    try{
-      const {data} = axios.get('api/products', {
-        name,
-        price,
-        description,
-        category,
-        quantity,
-        availabilityStatus,
-        brand
-      })
-    }catch{
-    
-    }
-  
-  
-    return (
-      <div className="w-full md:w-80 bg-white mb-10 mt-2 mx-auto shadow-lg">
-        <div
-          className="h-48 sm:h-64 w-full bg-gray-200 flex flex-col p-4 bg-cover bg-center"
-          style={{ backgroundImage: `url(${shirtImage})` }}
-        >
-          
-          <div>
-            <span className="uppercase text-xs bg-green-50 p-0.5 border-green-500 border rounded text-green-700 font-medium select-none">
-              {availabilityStatus}
-            </span>
-          </div>
-        </div>
-        <div className="p-4 flex flex-col items-center">
-          <p className="text-gray-400 font-light text-xs text-center">Aarong</p>
-          <h1 className="text-gray-800 text-center mt-1">Full Sleeve Shirt</h1>
-          <p className="text-center text-gray-800 mt-1">Tk. 500</p>
-          <div className="inline-flex items-center mt-2">
-            <div className="bg-gray-100 border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-1 select-none">
-              In Stock: {quantity}
-            </div>
-          </div>
-          <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 mt-4 w-full flex items-center justify-center">
-            View and Modify
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 ml-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0zm12-2a2 2 0 100-4 2 2 0 000 4z"
-              />
-            </svg>
-          </button>
+  const handleViewBtn = () => {
+    // Replace with correct path format
+    router.push(`/products/${ProductMasterId}`);
+  };
+
+  return (
+    <div className="w-full sm:w-48 md:w-56 bg-white mb-4 mt-2 mx-auto shadow-lg rounded-lg overflow-hidden">
+      <div
+        className="h-24 sm:h-36 w-full bg-gray-200 bg-cover bg-center"
+        style={{ backgroundImage: `url(${imageUrl})` }}
+      >
+        <div className="flex justify-between p-2">
+          <span className={`uppercase text-xs p-1 border rounded font-medium select-none ${isAvailable ? 'bg-green-50 border-green-500 text-green-700' : 'bg-red-50 border-red-500 text-red-700'}`}>
+            {isAvailable ? 'Available' : 'Unavailable'}
+          </span>
         </div>
       </div>
-    );
-  };
+      <div className="p-4 flex flex-col items-center">
+        <p className="text-gray-400 font-light text-xs text-center">Brand: {BrandName || 'N/A'}</p>
+        <h1 className="text-gray-800 text-center mt-1 text-md font-semibold">{Name || 'Product Name'}</h1>
+        <p className="text-center text-gray-800 mt-1 font-medium">Tk. {Price || '0'}</p>
+        <div className="inline-flex items-center mt-2">
+          <div className={`bg-gray-100 border border-gray-300 text-gray-600 px-4 py-1 rounded ${isAvailable ? '' : 'bg-red-50 text-red-700'}`}>
+            {isAvailable ? `In Stock: ${Quantity}` : 'Out of Stock'}
+          </div>
+        </div>
+        <button
+          className={`py-2 px-2 bg-blue-500 text-sm text-white rounded hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 mt-4 w-full flex items-center justify-center ${!isAvailable ? 'cursor-not-allowed opacity-50' : ''}`}
+          disabled={!isAvailable}
+          onClick={handleViewBtn}
+        >
+          View and Modify
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 ml-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8.25 4.5l7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default ProductCard;

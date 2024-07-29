@@ -3,7 +3,7 @@ import Body from "./body";
 import Menu from "@/components/menu-bar/menu-bar";
 import ProtectedRoute from "@/components/protected-route/protected-route";
 
-const page = () =>{
+const Page = () =>{
     return(
         <div className="flex">
             <Menu/>
@@ -12,4 +12,4 @@ const page = () =>{
     )
 };
 
-export default page;
+export default Page;

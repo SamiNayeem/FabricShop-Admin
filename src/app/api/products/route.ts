@@ -33,64 +33,53 @@ export async function POST(req: NextRequest) {
     try {
         await connection.beginTransaction();
 
-        const checkDuplicateProduct = `
-            SELECT COUNT(*) AS count FROM productmaster WHERE LOWER(name) = LOWER(?) OR LOWER(code) = LOWER(?)
-        `;
-        const [duplicateProductResult] = await connection.execute(checkDuplicateProduct, [name, code]);
-        const duplicateCount = duplicateProductResult[0].count;
-
-        if (duplicateCount > 0) {
+        // Check for duplicate products
+        const [duplicateProductResult] = await connection.execute(
+            `SELECT COUNT(*) AS count FROM productmaster WHERE LOWER(name) = LOWER(?) OR LOWER(code) = LOWER(?)`,
+            [name, code]
+        );
+        if (duplicateProductResult[0].count > 0) {
             await connection.rollback();
-            return NextResponse.json(
-                { message: 'Product already exists' },
-                { status: 400 }
-            );
+            return NextResponse.json({ message: 'Product already exists' }, { status: 400 });
         }
 
-        const insertProductMaster = `
-            INSERT INTO productmaster (name, code, description, createdby, createdat)
-            VALUES (?, ?, ?, ?, NOW())
-        `;
-        const [productMasterResult] = await connection.execute(insertProductMaster, [name, code, description, createdby]);
+        // Insert into productmaster
+        const [productMasterResult] = await connection.execute(
+            `INSERT INTO productmaster (name, code, description, createdby, createdat) VALUES (?, ?, ?, ?, NOW())`,
+            [name, code, description, createdby]
+        );
         const productMasterId = productMasterResult.insertId;
 
-        const insertProductDetails = `
-            INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat)
-            VALUES (?, ?, ?, ?, ?, ?, NOW())
-        `;
-        const [productDetailsResult] = await connection.execute(insertProductDetails, [productMasterId, categoryid, colorid, sizeid, brandid, createdby]);
+        // Insert into productdetails
+        const [productDetailsResult] = await connection.execute(
+            `INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat) VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+            [productMasterId, categoryid, colorid, sizeid, brandid, createdby]
+        );
         const productDetailsId = productDetailsResult.insertId;
 
+        // Insert images
         if (imageurl && imageurl.length > 0) {
-            const insertImages = `
-                INSERT INTO images (url, productmasterid, productdetailsid, createdby, createdat)
-                VALUES (?, ?, ?, ?, NOW())
-            `;
+            const insertImages = `INSERT INTO images (url, productmasterid, productdetailsid, createdby, createdat) VALUES (?, ?, ?, ?, NOW())`;
             for (const url of imageurl) {
                 await connection.execute(insertImages, [url, productMasterId, productDetailsId, createdby]);
             }
         }
 
+        // Insert quantity (if provided)
         if (quantity !== undefined) {
-            const insertProductInventory = `
-                INSERT INTO productinventory (productdetailsid, quantity, createdby, createdat)
-                VALUES (?, ?, ?, NOW())
-            `;
-            await connection.execute(insertProductInventory, [productDetailsId, quantity, createdby]);
+            await connection.execute(
+                `INSERT INTO productinventory (productdetailsid, quantity, createdby, createdat) VALUES (?, ?, ?, NOW())`,
+                [productDetailsId, quantity, createdby]
+            );
         }
 
         await connection.commit();
-        return NextResponse.json(
-            { message: 'Product created successfully' },
-            { status: 200 }
-        );
+        return NextResponse.json({ message: 'Product created successfully' }, { status: 200 });
     } catch (error) {
         await connection.rollback();
         console.error('Error adding product:', error);
-        return NextResponse.json(
-            { message: 'Error adding product' },
-            { status: 500 }
-        );
+        console.log(error)
+        return NextResponse.json({ message: 'Error adding product' }, { status: 500 });
     } finally {
         connection.release();
     }
@@ -98,77 +87,48 @@ export async function POST(req: NextRequest) {
 
 // Handle GET requests
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const searchkey = searchParams.get('searchkey') || '';
-    const sorttype = searchParams.get('sorttype') || 'low-to-high';
-
     try {
-        const [rows] = await pool.query('CALL searchgetsortitems(?, ?)', [searchkey, sorttype]);
+        // Fetch product details including inventory and images
+        const [rows] = await pool.query(`
+            SELECT pm.id AS ProductMasterId, pm.name, pm.description, pd.price, b.name AS brandname, 
+                   i.url AS imageurl, pi.quantity
+            FROM productmaster pm
+            JOIN productdetails pd ON pm.id = pd.productmasterid
+            JOIN brands b ON pd.brandid = b.id
+            LEFT JOIN images i ON pm.id = i.productmasterid
+            LEFT JOIN productinventory pi ON pd.id = pi.productdetailsid
+            WHERE pm.activestatus = 1
+        `);
 
+        // Process rows to group images by product
         const productsMap = new Map();
 
-        rows[0].forEach((row: any) => {
-            const productMasterId = row.productmasterid;
+        rows.forEach((row: any) => {
+            const productMasterId = row.ProductMasterId;
 
             if (!productsMap.has(productMasterId)) {
                 productsMap.set(productMasterId, {
-                    ProductMasterId: row.productmasterid,
+                    ProductMasterId: productMasterId,
                     Name: row.name,
-                    Code: row.code,
                     Description: row.description,
-                    CreatedAt: row.productmastercreatedat,
-                    CreatedBy: row.productmastercreatedby,
-                    Details: []
-                });
-            }
-
-            const product = productsMap.get(productMasterId);
-            const productDetailsId = row.productdetailsid;
-            const productDetail = product.Details.find((detail: any) => detail.ProductDetailsId === productDetailsId);
-
-            if (!productDetail) {
-                const newDetail = {
-                    ProductDetailsId: row.productdetailsid,
-                    CategoryId: row.categoryid,
-                    ColorId: row.colorid,
-                    SizeId: row.sizeid,
-                    BrandId: row.brandid,
                     Price: row.price,
-                    CreatedAt: row.productdetailscreatedat,
-                    CreatedBy: row.productdetailscreatedby,
-                    Images: [],
-                    Inventory: {
-                        ProductInventoryId: row.productinventoryid,
-                        Quantity: row.quantity,
-                        AvailabilityStatus: row.availabilitystatus,
-                        CreatedAt: row.productinventorycreatedat,
-                        CreatedBy: row.productinventorycreatedby
-                    }
-                };
-                product.Details.push(newDetail);
+                    BrandName: row.brandname,
+                    Quantity: row.quantity,
+                    ImageUrl: row.imageurl ? [row.imageurl] : [],
+                });
             } else {
-                if (row.imageid) {
-                    productDetail.Images.push({
-                        ImageId: row.imageid,
-                        Url: row.imageurl,
-                        CreatedAt: row.imagecreatedat,
-                        CreatedBy: row.imagecreatedby
-                    });
+                const product = productsMap.get(productMasterId);
+                if (row.imageurl) {
+                    product.ImageUrl.push(row.imageurl);
                 }
             }
         });
 
         const processedProductData = Array.from(productsMap.values());
-        return NextResponse.json(
-            { products: processedProductData },
-            { status: 200 }
-        );
+        return NextResponse.json({ products: processedProductData }, { status: 200 });
     } catch (error) {
         console.error('Error fetching product data:', error);
-        return NextResponse.json(
-            { error: 'Error fetching product data' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 

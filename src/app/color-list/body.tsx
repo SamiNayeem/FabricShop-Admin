@@ -71,7 +71,7 @@ const Body = () => {
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full mb-20 ml-10">
             <div className="flex flex-col text-center w-full mb-12 mt-10">
                 <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">Color List</h1>
                 <p className="lg:w-2/3 mx-auto leading-relaxed text-base">Available colors in Database</p>

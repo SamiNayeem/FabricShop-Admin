@@ -6,7 +6,7 @@ const Page = () =>{
     return(
         <div className="flex">
             <Menu/>
-            <Body />
+            <Body/>
         </div>
     )
 }

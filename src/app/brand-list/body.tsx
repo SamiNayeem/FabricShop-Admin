@@ -66,8 +66,8 @@ const Body = () => {
     };
 
     return (
-        <div className="w-full">
-            <div className="flex flex-col text-center w-full mb-12 mt-10">
+        <div className="w-full ml-10">
+            <div className="flex flex-col text-center w-full mb-10 mt-10">
                 <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">Brand List</h1>
                 <p className="lg:w-2/3 mx-auto leading-relaxed text-base">Available brands in Database</p>
             </div>
@@ -91,7 +91,7 @@ const Body = () => {
                         </button>
                     </div>
                 </div>
-                <ul className="w-full bg-white shadow overflow-hidden sm:rounded-md max-w-sm mx-40 mt-16">
+                <ul className="w-full bg-white shadow overflow-hidden sm:rounded-md max-w-sm mx-40 mt-5">
                     {brands.map((brand) => (
                         <li key={brand.id} className="border-t border-gray-200">
                             <div className="px-4 py-5 sm:px-6">
