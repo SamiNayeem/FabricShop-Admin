@@ -1,17 +1,21 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+'use client'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Body from './body';
 import Menu from '@/components/menu-bar/menu-bar';
 import Preloader from '@/components/preloader/preloader';
 
 interface Product {
     name: string;
+    brandName: string;
     price: string;
     availability: string;
     description: string;
-    imageUrl: string[];
+    imageUrls: string[];
+    quantity: number;
+    colorName: string;
+    hexcode: string;
+    sizeName: string;
 }
 
 const fetchProduct = async (id: string): Promise<Product> => {
@@ -27,41 +31,44 @@ const fetchProduct = async (id: string): Promise<Product> => {
     }
 };
 
-const Page = () => {
-    const router = useRouter();
-    const { id } = useParams();
-
+const ProductPage = ({ params }: { params: { id: string } }) => {
+    const { id } = params;
     const [product, setProduct] = useState<Product | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
-            console.log('Fetching product with ID:', id); // Debugging line
-            fetchProduct(id.toString())
+            fetchProduct(id)
                 .then((data) => {
-                    console.log('Product data:', data); // Debugging line
                     setProduct(data);
+                    setLoading(false);
                 })
                 .catch((error) => {
-                    console.error('Error fetching product:', error);
-                    router.replace('/404');
-                })
-                .finally(() => setLoading(false));
-        } else {
-            console.error('ID is not defined or invalid'); // Debugging line
-            router.replace('/404');
+                    setError(error.message);
+                    setLoading(false);
+                });
         }
-    }, [id, router]);
+    }, [id]);
 
-    if (loading) return <div><Preloader/></div>;
-    if (!product) return <div>Product not found</div>;
+    if (loading) {
+        return <div>L<Preloader/></div>;
+    }
 
-    return (
-        <div className="flex">
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    if (!product) {
+        return <div>No product found.</div>;
+    }
+
+    return(
+        <div className='flex w-full'>
             <Menu />
-            <Body product={product} />
+            <Body product={product} />  
         </div>
-    );
+    ) 
 };
 
-export default Page;
+export default ProductPage;
