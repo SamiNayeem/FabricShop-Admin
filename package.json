@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/nodemailer": "^6.4.15",
+    "apexcharts": "^3.51.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "crypto": "^1.0.1",
@@ -21,6 +22,7 @@
     "next": "14.2.4",
     "nodemailer": "^6.9.14",
     "react": "^18",
+    "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
     "use-router": "^0.4.2"

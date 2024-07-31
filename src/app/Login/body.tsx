@@ -1,4 +1,4 @@
-// src/app/components/Login.tsx
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from 'axios';
@@ -28,7 +28,7 @@ const LoginForm = () => {
             console.log('Login successful');
             toast.success("Login successful!", {
                 position: "top-center",
-                autoClose: 3000,
+                autoClose: 1000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -44,7 +44,7 @@ const LoginForm = () => {
             console.error('Login error:', error.message);
             toast.error("Invalid Credentials!", {
                 position: "top-center",
-                autoClose: 3000,
+                autoClose: 1000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -102,7 +102,7 @@ export default function Body() {
         <div className="py-2 mt-10 mb-10">
             <ToastContainer
                 position="top-center"
-                autoClose={3000}
+                autoClose={1000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick

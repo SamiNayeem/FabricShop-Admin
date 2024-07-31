@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setAuthState(defaultAuthState);
-    router.push('/Login'); // Redirect to login after logout
+    router.push('/login'); // Redirect to login after logout
   };
 
   return (

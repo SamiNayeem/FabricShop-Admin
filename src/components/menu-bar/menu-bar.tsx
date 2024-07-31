@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export default function Menu() {
 
     const Router = useRouter()
-
+    const svgPathData = 'F:/Sami/Work/PTSL/FabricShop/Implementation/fabricshop_admin/public/images/history.svg'
     
   return (
 
@@ -40,7 +40,7 @@ export default function Menu() {
 
             <a
               className="flex items-center px-3 py-2 text-gray-600 transition duration-300 ease-in-out transform rounded-lg hover:bg-gray-100"
-              href="#"
+              href="/sales"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +59,22 @@ export default function Menu() {
 
               <span className="mx-2 text-sm font-medium">Sales</span>
             </a>
+
+            <a
+              className="flex items-center px-3 py-2 text-gray-600 transition duration-300 ease-in-out transform rounded-lg hover:bg-gray-100"
+              href="/order-history"
+            >
+              
+              <img className="h-5 w-5" src="../images/history.svg" alt="" />
+
+              <span className="mx-2 text-sm font-medium">Order History</span>
+            </a>
+
+            
+
+
           </div>
+          
           <div className="space-y-3">
             <label className="px-3 text-xs text-gray-500 uppercase">content</label>
 
