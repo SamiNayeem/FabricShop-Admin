@@ -1,15 +1,11 @@
-"use client"
+"use client";
 import React from "react";
 import Image from "next/image";
-import { useAuth } from '../../app/context/auth-context';
-import Router from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/auth-context";
+
 
 export default function Menu() {
 
-    const Router = useRouter()
-    const svgPathData = 'F:/Sami/Work/PTSL/FabricShop/Implementation/fabricshop_admin/public/images/history.svg'
-    
   return (
 
     <aside className="flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l mt-2  left-0">
@@ -26,12 +22,13 @@ export default function Menu() {
 
       <div className="flex flex-col justify-between flex-1 mt-6">
         <nav className="-mx-3 space-y-6">
+          
           <div className="space-y-3">
             <label className="px-3 text-xs text-gray-500 uppercase">analytics</label>
 
             <a
               className="flex items-center px-3 py-2 text-gray-600 transition duration-300 ease-in-out transform rounded-lg hover:bg-gray-100"
-              href="/Dashboard"
+              href="/dashboard"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg>
 
@@ -267,7 +264,7 @@ export default function Menu() {
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 8a6 6 0 1 1 12 0A6 6 0 0 1 6 8zm2 10a3 3 0 0 0-3 3 1 1 0 1 1-2 0 5 5 0 0 1 5-5h8a5 5 0 0 1 5 5 1 1 0 1 1-2 0 3 3 0 0 0-3-3H8z" fill="#0D0D0D"/></svg>
 
-              <span className="mx-2 text-sm font-medium">User List</span>
+              <span className="mx-2 text-sm font-medium">Admin List</span>
             </a>
 
             <a

@@ -1,7 +1,9 @@
 import React from "react";
 import Chart from "@/components/chart/page";
 
+
 const Body = () =>{
+
     return(
     <div className="w-3/4">
         <div className="flex flex-col text-center w-full mb-12">

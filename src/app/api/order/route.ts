@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         const totalAmount = cartDetails.reduce((sum: number, product: any) => sum + product.TotalPrice, 0);
 
         // Generate a random order number
-        const orderNumber = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        const orderNumber = Math.floor(Math.random() * (99999999 - 100000 + 1)) + 100000;
 
         // Insert order master record
         const insertOrderMasterQuery = `
@@ -48,12 +48,12 @@ export async function POST(req: NextRequest) {
 
         // Insert order details records
         const insertOrderDetailsPromises = cartDetails.map((product: any) => {
-            const { ProductMasterId, Quantity, TotalPrice } = product;
+            const { ProductMasterId, ProductDetailsId, Quantity, TotalPrice } = product;
             const insertOrderDetailsQuery = `
-                INSERT INTO orderdetails (OrderMasterId, ProductMasterId, Quantity, TotalPrice)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO orderdetails (OrderMasterId, ProductMasterId, ProductDetailsId, Quantity, TotalPrice)
+                VALUES (?, ?, ?, ?, ?)
             `;
-            return connection.query(insertOrderDetailsQuery, [orderMasterId, ProductMasterId, Quantity, TotalPrice]);
+            return connection.query(insertOrderDetailsQuery, [orderMasterId, ProductMasterId, ProductDetailsId, Quantity, TotalPrice]);
         });
 
         await Promise.all(insertOrderDetailsPromises);

@@ -18,6 +18,8 @@ type ProductDescription = {
     productdetailsid?: number;
     updatedby?: number;
     deletedby?: number;
+    cost: number;
+    price: number; // added price here
 }
 
 // Handle POST requests
@@ -25,8 +27,12 @@ export async function POST(req: NextRequest) {
     const {
         name, code, description, createdby,
         categoryid, colorid, sizeid, brandid,
-        imageurl, quantity
+        imageurl, cost, price, quantity
     } = await req.json() as ProductDescription;
+
+    if (!name || !code || !description || !createdby || !categoryid || !colorid || !sizeid || !brandid || !cost || !price) {
+        return NextResponse.json({ message: 'All required fields must be provided' }, { status: 400 });
+    }
 
     const connection = await pool.getConnection();
 
@@ -52,8 +58,8 @@ export async function POST(req: NextRequest) {
 
         // Insert into productdetails
         const [productDetailsResult] = await connection.execute(
-            `INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat) VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-            [productMasterId, categoryid, colorid, sizeid, brandid, createdby]
+            `INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat,buyingprice, price) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
+            [productMasterId, categoryid, colorid, sizeid, brandid, createdby, cost, price]
         );
         const productDetailsId = productDetailsResult.insertId;
 
@@ -78,7 +84,6 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         await connection.rollback();
         console.error('Error adding product:', error);
-        console.log(error)
         return NextResponse.json({ message: 'Error adding product' }, { status: 500 });
     } finally {
         connection.release();
@@ -138,7 +143,7 @@ export async function PUT(req: NextRequest) {
         productmasterid, productdetailsid,
         name, code, description, updatedby,
         categoryid, colorid, sizeid, brandid,
-        imageurl, quantity
+        imageurl, quantity, price
     } = await req.json() as ProductDescription;
 
     const connection = await pool.getConnection();
@@ -173,10 +178,10 @@ export async function PUT(req: NextRequest) {
 
         const updateProductDetails = `
             UPDATE productdetails
-            SET categoryid = ?, colorid = ?, sizeid = ?, brandid = ?, updatedby = ?, updatedat = NOW()
+            SET categoryid = ?, colorid = ?, sizeid = ?, brandid = ?, updatedby = ?, updatedat = NOW(), price = ?
             WHERE id = ?
         `;
-        await connection.execute(updateProductDetails, [categoryid, colorid, sizeid, brandid, updatedby, productdetailsid]);
+        await connection.execute(updateProductDetails, [categoryid, colorid, sizeid, brandid, updatedby, price, productdetailsid]);
 
         if (quantity !== undefined) {
             const updateQuantity = `

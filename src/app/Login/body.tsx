@@ -39,7 +39,7 @@ const LoginForm = () => {
             });
 
             // Redirect to dashboard or another page upon successful login
-            router.push('/Dashboard');
+            router.push('/dashboard');
         } catch (error: any) {
             console.error('Login error:', error.message);
             toast.error("Invalid Credentials!", {

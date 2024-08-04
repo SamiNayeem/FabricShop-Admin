@@ -31,6 +31,7 @@ type FormData = {
   brandid: string;
   imageurl: string[];
   quantity: number;
+  cost: number;
   price: number;
 };
 
@@ -49,6 +50,7 @@ const Body: React.FC = () => {
     brandid: '',
     imageurl: [],
     quantity: 0,
+    cost: 0,
     price: 0,
   });
 
@@ -212,9 +214,22 @@ const Body: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="p-2 w-1/2">
+              <div className="p-2 w-1/3">
                 <div className="relative">
-                  <label htmlFor="price" className="leading-7 text-sm text-gray-600">Price</label>
+                  <label htmlFor="cost-price" className="leading-7 text-sm text-gray-600">Cost Price</label>
+                  <input
+                    type="number"
+                    id="cost-price"
+                    name="cost-price"
+                    value={formData.cost}
+                    onChange={handleInputChange}
+                    className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                  />
+                </div>
+              </div>
+              <div className="p-2 w-1/3">
+                <div className="relative">
+                  <label htmlFor="price" className="leading-7 text-sm text-gray-600">Selling Price</label>
                   <input
                     type="number"
                     id="price"
@@ -225,7 +240,7 @@ const Body: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="p-2 w-1/2">
+              <div className="p-2 w-1/3">
                 <div className="relative">
                   <label htmlFor="quantity" className="leading-7 text-sm text-gray-600">Quantity</label>
                   <input

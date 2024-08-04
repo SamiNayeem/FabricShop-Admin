@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from 'next/navigation';
 
 const ProductCard = ({ product }: { product: any }) => {
-  const { Name, Quantity, Description, Price, BrandName, ImageUrl, ProductMasterId } = product;
+  const { Name, Quantity, Size, Description, Price, BrandName, ImageUrl, ProductMasterId } = product;
   const imageUrl = ImageUrl.length > 0 ? ImageUrl[0] : '../images/Image_not_available.png';
 
   // Determine availability based on quantity
@@ -30,6 +30,9 @@ const ProductCard = ({ product }: { product: any }) => {
       <div className="p-4 flex flex-col items-center">
         <p className="text-gray-400 font-light text-xs text-center">Brand: {BrandName || 'N/A'}</p>
         <h1 className="text-gray-800 text-center mt-1 text-md font-semibold">{Name || 'Product Name'}</h1>
+        {/* product size */}
+        <p className="text-gray-800 font-light text-s text-center">Size: {Size || 'N/A'}</p>
+        
         <p className="text-center text-gray-800 mt-1 font-medium">Tk. {Price || '0'}</p>
         <div className="inline-flex items-center mt-2">
           <div className={`bg-gray-100 border border-gray-300 text-gray-600 px-4 py-1 rounded ${isAvailable ? '' : 'bg-red-50 text-red-700'}`}>

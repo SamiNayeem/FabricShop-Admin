@@ -27,8 +27,8 @@ const Body = () =>{
     return(
         <div className="mt-10 w-full">
             <div className="flex flex-col text-center w-full mb-12">
-                <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">User List</h1>
-                <p className="lg:w-2/3 mx-auto leading-relaxed text-base">Available users in Database</p>
+                <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">Admin List</h1>
+                <p className="lg:w-2/3 mx-auto leading-relaxed text-base">Available system admin in Database</p>
             </div>
             <section className="container px-4 mx-auto w-full">
     <div className="flex flex-col w-full">

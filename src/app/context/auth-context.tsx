@@ -2,6 +2,7 @@
 "use client";
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import Menu from '@/components/menu-bar/menu-bar';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated: true,
       user,
     });
-    router.push('/Dashboard'); // Redirect to dashboard after login
+    router.push('/dashboard'); // Redirect to dashboard after login
     console.log(user)
   };
 
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ authState, login, logout }}>
+      
       {children}
     </AuthContext.Provider>
   );
