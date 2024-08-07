@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useAuth } from "../context/auth-context";
 
 const Body = () => {
+  const { authState } = useAuth();
   const [colors, setColors] = useState<any[]>([]);
   const [newColorName, setNewColorName] = useState<string>("");
   const [newHexCode, setNewHexCode] = useState<string>("");
@@ -11,6 +13,7 @@ const Body = () => {
   const [updatedHexCode, setUpdatedHexCode] = useState<string>("");
 
   useEffect(() => {
+    
     const fetchColors = async () => {
       try {
         console.log(Date.now());
@@ -23,12 +26,12 @@ const Body = () => {
     };
 
     fetchColors();
-  }, []);
+  }, [authState.user?.userid]);
 
   const handleDelete = async (id: number) => {
     try {
       const response = await axios.delete(`/api/colors`, {
-        data: { id, deletedby: 12 },
+        data: { id, deletedby: authState.user?.userid },
       });
       if (response.status === 200) {
         setColors((prevColors) =>
@@ -46,7 +49,7 @@ const Body = () => {
       const response = await axios.post(`/api/colors`, {
         name: newColorName,
         hexcode: newHexCode,
-        createdby: 12,
+        createdby: authState.user?.userid,
       });
       if (response.status === 200) {
         setColors((prevColors) => [
@@ -73,7 +76,7 @@ const Body = () => {
         id,
         name: updatedColorName,
         hexcode: updatedHexCode,
-        updatedby: 12,
+        updatedby: authState.user?.userid,
       });
       if (response.status === 200) {
         setColors((prevColors) =>

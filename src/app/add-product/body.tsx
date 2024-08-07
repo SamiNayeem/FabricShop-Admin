@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Slide, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../context/auth-context';
 
 type Category = {
   id: number;
@@ -36,10 +37,11 @@ type FormData = {
   quantity: number;
   costprice: number;
   price: number;
-  createdby: number;
+  createdby?: number;
 };
 
 const Body: React.FC = () => {
+  const { authState } = useAuth(); // Destructure to get authState
   const [categories, setCategories] = useState<Category[]>([]);
   const [colors, setColors] = useState<Color[]>([]);
   const [sizes, setSizes] = useState<Size[]>([]);
@@ -56,7 +58,7 @@ const Body: React.FC = () => {
     quantity: 0,
     costprice: 0,
     price: 0,
-    createdby: 12
+    createdby: authState.user?.userid, // Set createdby to userid from authState
   });
 
   const router = useRouter();
@@ -93,15 +95,16 @@ const Body: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/products', formData, {
+      // Include createdby in the formData
+      const updatedFormData = { ...formData, createdby: authState.user?.userid };
+      const response = await axios.post('/api/products', updatedFormData, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
       toast.success('Product added successfully!', {
-        
         autoClose: 1000,
-        transition: Slide
+        transition: Slide,
       });
       setTimeout(() => {
         router.replace('/dashboard'); // Redirect to the dashboard
@@ -109,9 +112,8 @@ const Body: React.FC = () => {
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to add product. Please try again.', {
-        
         autoClose: 1000,
-        transition: Slide
+        transition: Slide,
       });
     }
   };
@@ -279,6 +281,7 @@ const Body: React.FC = () => {
                     id="imageurl"
                     name="imageurl"
                     multiple
+                    max={3}
                     accept=".jpg, .png, .jpeg, .gif"
                     onChange={handleFileChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"

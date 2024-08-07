@@ -17,7 +17,7 @@ export default function Menu() {
   };
 
   return (
-    <aside className="flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l mt-2 left-0">
+    <aside className="flex flex-col w-64 h-full px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l mt-2 left-0">
       <a href="#">
         <Image
           src="/images/menu.png"

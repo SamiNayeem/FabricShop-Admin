@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: { username: string } | null;
+  user: { username: string; userid: number } | null;
 }
 
 interface AuthContextProps {
   authState: AuthState;
-  login: (user: { username: string }) => void;
+  login: (user: { username: string; userid: number }) => void;
   logout: () => void;
 }
 
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>(defaultAuthState);
   const router = useRouter();
 
-  const login = (user: { username: string }) => {
+  const login = (user: { username: string; userid: number }) => {
     setAuthState({
       isAuthenticated: true,
       user,

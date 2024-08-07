@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useAuth } from "../context/auth-context";
 
 const Body = () => {
+    const { authState } = useAuth();
     const [categories, setCategories] = useState<any[]>([]);
     const [newCategoryName, setNewCategoryName] = useState<string>("");
     const [editingCategory, setEditingCategory] = useState<number | null>(null);
@@ -20,11 +22,11 @@ const Body = () => {
         };
 
         fetchCategories();
-    }, []);
+    }, [authState.user?.userid]);
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.delete(`/api/categories`, { data: { id, deletedby: 12 } });
+            const response = await axios.delete(`/api/categories`, { data: { id, deletedby: authState.user?.userid } });
             if (response.status === 200) {
                 setCategories(prevCategories => prevCategories.filter(category => category.id !== id));
                 console.log('Category deleted successfully');
@@ -36,7 +38,7 @@ const Body = () => {
 
     const handleInsert = async () => {
         try {
-            const response = await axios.post(`/api/categories`, { name: newCategoryName, createdby: 12 });
+            const response = await axios.post(`/api/categories`, { name: newCategoryName, createdby: authState.user?.userid });
             if (response.status === 200) {
                 const newCategory = { id: response.data.result.insertId, name: newCategoryName, activestatus: 1 };
                 setCategories(prevCategories => [...prevCategories, newCategory]);
@@ -50,7 +52,7 @@ const Body = () => {
 
     const handleUpdate = async (id: number) => {
         try {
-            const response = await axios.put(`/api/categories`, { id, name: updatedCategoryName, updatedby: 12 });
+            const response = await axios.put(`/api/categories`, { id, name: updatedCategoryName, updatedby: authState.user?.userid });
             if (response.status === 200) {
                 setCategories(prevCategories => prevCategories.map(category => category.id === id ? { ...category, name: updatedCategoryName } : category));
                 console.log('Category updated successfully');

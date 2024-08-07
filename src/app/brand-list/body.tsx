@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useAuth } from "../context/auth-context";
 
 const Body = () => {
+    const { authState } = useAuth();
     const [brands, setBrands] = useState<any[]>([]);
     const [newBrandName, setNewBrandName] = useState<string>("");
     const [editingBrand, setEditingBrand] = useState<number | null>(null);
     const [updatedBrandName, setUpdatedBrandName] = useState<string>("");
 
     useEffect(() => {
+        console.log("User ID:", authState.user?.userid);
+
         const fetchBrands = async () => {
             try {
                 const response = await axios.get('/api/brands');
@@ -19,11 +23,11 @@ const Body = () => {
         };
 
         fetchBrands();
-    }, []);
+    }, [authState.user?.userid]);
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await axios.delete(`/api/brands`, { data: { id, deletedby: 12 } });
+            const response = await axios.delete(`/api/brands`, { data: { id, deletedby: authState.user?.userid } });
             if (response.status === 200) {
                 setBrands(prevBrands => prevBrands.filter(brand => brand.id !== id));
                 console.log('Brand deleted successfully');
@@ -35,7 +39,7 @@ const Body = () => {
 
     const handleInsert = async () => {
         try {
-            const response = await axios.post(`/api/brands`, { name: newBrandName, createdby: 12 });
+            const response = await axios.post(`/api/brands`, { name: newBrandName, createdby: authState.user?.userid });
             if (response.status === 200) {
                 setBrands(prevBrands => [...prevBrands, { id: response.data.result.insertId, name: newBrandName, activestatus: 1 }]);
                 console.log('Brand added successfully');
@@ -48,7 +52,7 @@ const Body = () => {
 
     const handleUpdate = async (id: number) => {
         try {
-            const response = await axios.put(`/api/brands`, { id, name: updatedBrandName, updatedby: 12 });
+            const response = await axios.put(`/api/brands`, { id, name: updatedBrandName, updatedby: authState.user?.userid });
             if (response.status === 200) {
                 setBrands(prevBrands => prevBrands.map(brand => brand.id === id ? { ...brand, name: updatedBrandName } : brand));
                 console.log('Brand updated successfully');

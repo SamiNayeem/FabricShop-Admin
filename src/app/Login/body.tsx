@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from 'axios';
@@ -13,18 +12,18 @@ const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         try {
-            const {data} = await axios.post('/api/login', {
+            const { data } = await axios.post('/api/login', {
                 username,
                 userpassword: password,
             });
 
+            console.log('API Response:', data); // Log the full response
             localStorage.setItem('token', data.token);
-            login({ username });
+            login({ username, userid: data.userid }); // Updated to include userid
             console.log('Login successful');
             toast.success("Login successful!", {
                 position: "top-center",

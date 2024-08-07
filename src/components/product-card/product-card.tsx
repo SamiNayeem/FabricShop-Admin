@@ -1,7 +1,9 @@
 import React from "react";
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/app/context/auth-context"; // Adjust the path as needed
 
 const ProductCard = ({ product }: { product: any }) => {
+  const { authState } = useAuth(); // Get the auth state
   const { Name, Quantity, Size, Description, Price, BrandName, ImageUrl, ProductMasterId } = product;
   const imageUrl = ImageUrl.length > 0 ? ImageUrl[0] : '../images/Image_not_available.png';
 
@@ -11,6 +13,10 @@ const ProductCard = ({ product }: { product: any }) => {
   const router = useRouter();
 
   const handleViewBtn = () => {
+    if (!authState.isAuthenticated) {
+      router.push("/login"); // Redirect to login if not authenticated
+      return;
+    }
     // Replace with correct path format
     router.push(`/products/${ProductMasterId}`);
   };

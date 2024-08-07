@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     if (!isPasswordValid) {
       // Invalid password
       return NextResponse.json(
-        { error: "Invalid username or password 2" },
+        { error: "Invalid username or password" },
         { status: 401 }
       );
     }
@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
       expiresIn: "1h",
     });
 
-    return NextResponse.json({ message: "Login successful", token }, { status: 200 });
+    // Return the token and user id
+    return NextResponse.json({ message: "Login successful", token, userid: user.id }, { status: 200 });
   } catch (error) {
     console.error("Error logging in user:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
