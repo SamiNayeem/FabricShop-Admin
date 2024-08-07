@@ -18,8 +18,8 @@ type ProductDescription = {
     productdetailsid?: number;
     updatedby?: number;
     deletedby?: number;
-    cost: number;
-    price: number; // added price here
+    costprice: number;
+    price: number;
 }
 
 // Handle POST requests
@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
     const {
         name, code, description, createdby,
         categoryid, colorid, sizeid, brandid,
-        imageurl, cost, price, quantity
+        imageurl, costprice, price, quantity
     } = await req.json() as ProductDescription;
 
-    if (!name || !code || !description || !createdby || !categoryid || !colorid || !sizeid || !brandid || !cost || !price) {
+    if (!name || !code || !description || createdby === undefined || !categoryid || !colorid || !sizeid || !brandid || costprice === undefined || price === undefined) {
         return NextResponse.json({ message: 'All required fields must be provided' }, { status: 400 });
     }
 
@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
 
         // Check for duplicate products
         const [duplicateProductResult] = await connection.execute(
-            `SELECT COUNT(*) AS count FROM productmaster WHERE LOWER(name) = LOWER(?) OR LOWER(code) = LOWER(?)`,
-            [name, code]
+            `SELECT COUNT(*) AS count FROM productmaster WHERE LOWER(code) = LOWER(?)`,
+            [code]
         );
         if (duplicateProductResult[0].count > 0) {
             await connection.rollback();
@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
 
         // Insert into productdetails
         const [productDetailsResult] = await connection.execute(
-            `INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat,buyingprice, price) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
-            [productMasterId, categoryid, colorid, sizeid, brandid, createdby, cost, price]
+            `INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat, price, costprice) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)`,
+            [productMasterId, categoryid, colorid, sizeid, brandid, createdby, price, costprice]
         );
         const productDetailsId = productDetailsResult.insertId;
 
@@ -95,11 +95,12 @@ export async function GET(req: NextRequest) {
     try {
         // Fetch product details including inventory and images
         const [rows] = await pool.query(`
-            SELECT pm.id AS ProductMasterId, pm.name, pm.description, pd.price, b.name AS brandname, 
+            SELECT pm.id AS ProductMasterId, pm.name, pm.description, pd.price, s.name as sizename, b.name AS brandname, 
                    i.url AS imageurl, pi.quantity
             FROM productmaster pm
             JOIN productdetails pd ON pm.id = pd.productmasterid
             JOIN brands b ON pd.brandid = b.id
+            JOIN sizes s ON pd.sizeid = s.id
             LEFT JOIN images i ON pm.id = i.productmasterid
             LEFT JOIN productinventory pi ON pd.id = pi.productdetailsid
             WHERE pm.activestatus = 1
@@ -116,6 +117,7 @@ export async function GET(req: NextRequest) {
                     ProductMasterId: productMasterId,
                     Name: row.name,
                     Description: row.description,
+                    size: row.sizename,
                     Price: row.price,
                     BrandName: row.brandname,
                     Quantity: row.quantity,

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { Slide, ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Category = {
   id: number;
@@ -25,14 +28,15 @@ type FormData = {
   name: string;
   code: string;
   description: string;
-  categoryid: string;
-  colorid: string;
-  sizeid: string;
-  brandid: string;
+  categoryid: number;
+  colorid: number;
+  sizeid: number;
+  brandid: number;
   imageurl: string[];
   quantity: number;
-  cost: number;
+  costprice: number;
   price: number;
+  createdby: number;
 };
 
 const Body: React.FC = () => {
@@ -44,15 +48,18 @@ const Body: React.FC = () => {
     name: '',
     code: '',
     description: '',
-    categoryid: '',
-    colorid: '',
-    sizeid: '',
-    brandid: '',
+    categoryid: 0,
+    colorid: 0,
+    sizeid: 0,
+    brandid: 0,
     imageurl: [],
     quantity: 0,
-    cost: 0,
+    costprice: 0,
     price: 0,
+    createdby: 12
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async (url: string, setState: React.Dispatch<React.SetStateAction<any[]>>) => {
@@ -91,16 +98,27 @@ const Body: React.FC = () => {
           'Content-Type': 'application/json'
         }
       });
-      console.log('Success:', response.data);
-      // Handle success
+      toast.success('Product added successfully!', {
+        
+        autoClose: 1000,
+        transition: Slide
+      });
+      setTimeout(() => {
+        router.replace('/dashboard'); // Redirect to the dashboard
+      }, 1000);
     } catch (error) {
       console.error('Error:', error);
-      // Handle error
+      toast.error('Failed to add product. Please try again.', {
+        
+        autoClose: 1000,
+        transition: Slide
+      });
     }
   };
 
   return (
     <div>
+      <ToastContainer />
       <section className="text-gray-600 body-font relative">
         <div className="container px-5 py-24 mx-auto">
           <div className="flex flex-col text-center w-full mb-12">
@@ -156,7 +174,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value="">Select Category</option>
+                    <option value={0}>Select Category</option>
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>{category.name}</option>
                     ))}
@@ -173,7 +191,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value="">Select Color</option>
+                    <option value={0}>Select Color</option>
                     {colors.map(color => (
                       <option key={color.id} value={color.id}>{color.name}</option>
                     ))}
@@ -190,7 +208,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value="">Select Size</option>
+                    <option value={0}>Select Size</option>
                     {sizes.map(size => (
                       <option key={size.id} value={size.id}>{size.name}</option>
                     ))}
@@ -207,7 +225,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value="">Select Brand</option>
+                    <option value={0}>Select Brand</option>
                     {brands.map(brand => (
                       <option key={brand.id} value={brand.id}>{brand.name}</option>
                     ))}
@@ -216,12 +234,12 @@ const Body: React.FC = () => {
               </div>
               <div className="p-2 w-1/3">
                 <div className="relative">
-                  <label htmlFor="cost-price" className="leading-7 text-sm text-gray-600">Cost Price</label>
+                  <label htmlFor="costprice" className="leading-7 text-sm text-gray-600">Cost Price</label>
                   <input
                     type="number"
-                    id="cost-price"
-                    name="cost-price"
-                    value={formData.cost}
+                    id="costprice"
+                    name="costprice"
+                    value={formData.costprice}
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   />
