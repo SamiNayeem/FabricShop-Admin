@@ -19,7 +19,7 @@ const pool = mysql.createPool({
     password: '1234',
     database: 'fabricshop',
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 100,
     queueLimit: 0,
   });
   

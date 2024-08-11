@@ -41,7 +41,7 @@ type FormData = {
 };
 
 const Body: React.FC = () => {
-  const { authState } = useAuth(); // Destructure to get authState
+  const { authState } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [colors, setColors] = useState<Color[]>([]);
   const [sizes, setSizes] = useState<Size[]>([]);
@@ -58,7 +58,7 @@ const Body: React.FC = () => {
     quantity: 0,
     costprice: 0,
     price: 0,
-    createdby: authState.user?.userid, // Set createdby to userid from authState
+    createdby: authState.user?.userid,
   });
 
   const router = useRouter();
@@ -84,18 +84,36 @@ const Body: React.FC = () => {
     setFormData(prevState => ({ ...prevState, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files).map(file => URL.createObjectURL(file));
-      setFormData(prevState => ({ ...prevState, imageurl: filesArray }));
-      Array.from(e.target.files).forEach(file => URL.revokeObjectURL(file.toString()));
+      const filesArray = Array.from(e.target.files);
+      try {
+        const uploadPromises = filesArray.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          const response = await axios.post('/api/upload', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          return response.data.url; // Assuming the server responds with the URL
+        });
+
+        const imageUrls = await Promise.all(uploadPromises);
+        setFormData(prevState => ({ ...prevState, imageurl: imageUrls }));
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        toast.error('Failed to upload images. Please try again.', {
+          autoClose: 1000,
+          transition: Slide,
+        });
+      }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Include createdby in the formData
       const updatedFormData = { ...formData, createdby: authState.user?.userid };
       const response = await axios.post('/api/products', updatedFormData, {
         headers: {

@@ -1,6 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 const pool = require('@/config/db');
 
+// type ProductDescription = {
+//     name: string;
+//     code: string;
+//     description: string;
+//     createdby?: number;
+//     categoryid: number;
+//     colorid: number;
+//     sizeid: number;
+//     brandid: number;
+//     imageurl?: string[];
+//     quantity?: number;
+//     searchkey?: string;
+//     sorttype?: string;
+//     productmasterid?: number;
+//     productdetailsid?: number;
+//     updatedby?: number;
+//     deletedby?: number;
+//     costprice: number;
+//     price: number;
+
+    
+// }
+
 type ProductDescription = {
     name: string;
     code: string;
@@ -21,7 +44,6 @@ type ProductDescription = {
     costprice: number;
     price: number;
 }
-
 // Handle POST requests
 export async function POST(req: NextRequest) {
     const {
@@ -139,13 +161,13 @@ export async function GET(req: NextRequest) {
     }
 }
 
-// Handle PUT requests
+/// Handle PUT requests
 export async function PUT(req: NextRequest) {
     const {
         productmasterid, productdetailsid,
         name, code, description, updatedby,
         categoryid, colorid, sizeid, brandid,
-        imageurl, quantity, price
+        quantity, price
     } = await req.json() as ProductDescription;
 
     const connection = await pool.getConnection();
@@ -157,7 +179,7 @@ export async function PUT(req: NextRequest) {
             SELECT 
                 (SELECT COUNT(*) FROM categories WHERE id = ? AND activestatus = 1) AS categoryActive,
                 (SELECT COUNT(*) FROM colors WHERE id = ? AND activestatus = 1) AS colorActive,
-                (SELECT COUNT(*) FROM sizes WHERE id = ? AND activitystatus = 1) AS sizeActive,
+                (SELECT COUNT(*) FROM sizes WHERE id = ? AND activestatus = 1) AS sizeActive,
                 (SELECT COUNT(*) FROM brands WHERE id = ? AND activestatus = 1) AS brandActive
         `;
         const [activeStatusResult] = await connection.execute(checkActiveStatus, [categoryid, colorid, sizeid, brandid]);
@@ -194,21 +216,6 @@ export async function PUT(req: NextRequest) {
             await connection.execute(updateQuantity, [quantity, updatedby, productdetailsid]);
         }
 
-        if (imageurl && imageurl.length > 0) {
-            const deleteImages = `
-                DELETE FROM images WHERE productdetailsid = ?
-            `;
-            await connection.execute(deleteImages, [productdetailsid]);
-
-            const insertImages = `
-                INSERT INTO images (url, productmasterid, productdetailsid, createdby, createdat)
-                VALUES (?, ?, ?, ?, NOW())
-            `;
-            for (const url of imageurl) {
-                await connection.execute(insertImages, [url, productmasterid, productdetailsid, updatedby]);
-            }
-        }
-
         await connection.commit();
         return NextResponse.json(
             { message: 'Product updated successfully' },
@@ -225,26 +232,29 @@ export async function PUT(req: NextRequest) {
         connection.release();
     }
 }
-
+// Handle DELETE requests
 // Handle DELETE requests
 export async function DELETE(req: NextRequest) {
-    const deleteProduct = `
-        UPDATE productmaster
-        SET activestatus = 0, deletedby = ?, deletedat = NOW()
-        WHERE id = ?
-    `;
-    const { deletedby, productmasterid } = await req.json() as ProductDescription;
     try {
-        const [result] = await pool.execute(deleteProduct, [deletedby, productmasterid]);
-        return NextResponse.json(
-            { message: 'Product deleted successfully' },
-            { status: 200 }
-        );
+        const { productmasterid, deletedby } = await req.json() as ProductDescription;
+
+        if (!productmasterid || !deletedby) {
+            console.log("Product ID or deleted by user ID is missing");
+            return NextResponse.json({ message: 'Product ID and deleted by user ID are required' }, { status: 400 });
+        }
+
+        const deleteProduct = `
+            UPDATE productmaster
+            SET activestatus = 0, deletedby = ?, deletedat = NOW()
+            WHERE id = ?
+        `;
+
+        await pool.execute(deleteProduct, [deletedby, productmasterid]);
+
+        console.log(`Product with ID ${productmasterid} deleted by user ${deletedby}`);
+        return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 });
     } catch (error) {
         console.error('Error deleting product:', error);
-        return NextResponse.json(
-            { message: 'Error deleting product' },
-            { status: 500 }
-        );
+        return NextResponse.json({ message: 'Error deleting product' }, { status: 500 });
     }
 }

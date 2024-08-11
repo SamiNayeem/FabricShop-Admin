@@ -6,6 +6,7 @@ import Menu from '@/components/menu-bar/menu-bar';
 import Preloader from '@/components/preloader/preloader';
 
 interface Product {
+    productmasterid: number;
     name: string;
     brandName: string;
     price: string;
@@ -31,7 +32,7 @@ const fetchProduct = async (id: string): Promise<Product> => {
     }
 };
 
-const ProductPage = ({ params }: { params: { id: string } }) => {
+const Page = ({ params }: { params: { id: string } }) => {
     const { id } = params;
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -52,7 +53,7 @@ const ProductPage = ({ params }: { params: { id: string } }) => {
     }, [id]);
 
     if (loading) {
-        return <div>L<Preloader/></div>;
+        return <div><Preloader /></div>;
     }
 
     if (error) {
@@ -63,12 +64,12 @@ const ProductPage = ({ params }: { params: { id: string } }) => {
         return <div>No product found.</div>;
     }
 
-    return(
+    return (
         <div className='flex w-full'>
             <Menu />
-            <Body product={product} />  
+            <Body product={product} />
         </div>
-    ) 
+    );
 };
 
-export default ProductPage;
+export default Page;

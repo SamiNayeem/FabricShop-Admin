@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/app/context/auth-context"; // Adjust the path as needed
+import axios from 'axios';
 
 const ProductCard = ({ product }: { product: any }) => {
   const { authState } = useAuth(); // Get the auth state
@@ -19,6 +20,29 @@ const ProductCard = ({ product }: { product: any }) => {
     }
     // Replace with correct path format
     router.push(`/products/${ProductMasterId}`);
+  };
+
+  const handleDeleteProduct = async () => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      try {
+        const response = await axios.delete('/api/products', {
+          data: {
+            productmasterid: ProductMasterId,
+            deletedby: authState.user?.userid
+          }
+        });
+
+        if (response.status === 200) {
+          alert('Product deleted successfully.');
+          router.push('/dashboard'); // Redirect to dashboard after successful deletion
+        } else {
+          alert(`Failed to delete product: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('An error occurred while deleting the product.');
+      }
+    }
   };
 
   return (
@@ -50,7 +74,7 @@ const ProductCard = ({ product }: { product: any }) => {
           disabled={!isAvailable}
           onClick={handleViewBtn}
         >
-          View and Modify
+          View Product
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 ml-2"
@@ -66,6 +90,28 @@ const ProductCard = ({ product }: { product: any }) => {
             />
           </svg>
         </button>
+        {authState.isAuthenticated && (
+          <button
+            className="py-2 px-2 bg-red-500 text-sm text-white rounded hover:bg-red-600 active:bg-red-700 mt-2 w-full flex items-center justify-center"
+            onClick={handleDeleteProduct}
+          >
+            Delete Product
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 ml-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
