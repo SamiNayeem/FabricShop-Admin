@@ -147,7 +147,7 @@ const Body = () =>{
             </span>
         </a>
 
-        <div className="items-center hidden md:flex gap-x-3">
+        {/* <div className="items-center hidden md:flex gap-x-3">
             <a href="#" className="px-2 py-1 text-sm text-blue-500 rounded-md bg-blue-100/60">1</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">2</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">3</a>
@@ -155,7 +155,7 @@ const Body = () =>{
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">12</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">13</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">14</a>
-        </div>
+        </div> */}
 
         <a href="#" className="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100">
             <span>

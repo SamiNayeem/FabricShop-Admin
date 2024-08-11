@@ -154,7 +154,7 @@ const Body: React.FC<BodyProps> = ({ product }) => {
                             <div className="mt-4">
                                 <button
                                     className="bg-blue-500 text-white py-2 px-4 rounded-full font-bold hover:bg-blue-600"
-                                    onClick={handleDeleteProduct}
+                                    
                                 >
                                     Update Quantity
                                 </button>

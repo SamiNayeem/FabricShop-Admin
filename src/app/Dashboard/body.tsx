@@ -3,6 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/auth-context"; // Adjust the path as needed
 import ProductCard from "@/components/product-card/product-card";
+import SearchBar from "@/components/search-bar/search-bar";
 
 const Body = () => {
   const { authState } = useAuth(); // Get the auth state
@@ -32,6 +33,9 @@ const Body = () => {
   }
 
   return (
+    <div>
+      <SearchBar/>
+    
     <div className="flex flex-col lg:flex-row">
       <div className="flex-1 px-2 lg:px-10 py-4">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -40,6 +44,7 @@ const Body = () => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 };

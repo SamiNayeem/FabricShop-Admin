@@ -2,15 +2,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../../app/context/auth-context';
+import Marquee from 'react-fast-marquee';
 
 const Navbar = () => {
   const { authState, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  console.log(authState.user?.image)
 
-  const handleSearchChange = (e:any) => {
-    setSearchQuery(e.target.value);
-    // You can perform search-related actions here if needed
-  };
+  
 
   return (
     <div className="w-full shadow-md">
@@ -26,21 +25,19 @@ const Navbar = () => {
                   width={100}
                   height={40}
                   className="w-25 h-10"
+                  priority
                 />
               </a>
             </div>
 
             {/* Navigation links or Search bar */}
             {authState.isAuthenticated ? (
-              // Search bar
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  placeholder="Search Products.........."
-                  className="w-3/4 mx-40 px-4 py-2 rounded-md border-2 focus:border-gray-500 focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                />
+              // Marquee
+              <div className="flex-1 max-w-xl h-10 py-auto items-center py-">
+                <Marquee>
+                  <span className='inline-flex items-center px-4 text-base font-medium text-gray-900'>For any queries please contact: <span className=" inline-flex items-center px-4 py-2 text-base font-medium text-gray-900">fabricshop@gmail.com &nbsp;&nbsp; </span></span>
+                  
+        </Marquee>
               </div>
             ) : (
               // Navigation links
@@ -70,14 +67,18 @@ const Navbar = () => {
               {authState.isAuthenticated ? (
                 <>
                   <span className="inline-flex items-center px-4 py-2 text-base font-medium text-gray-900">
-                    {authState.user?.username}
-                    
-                  </span>
+  {authState.user?.username}
+  <img 
+    src={authState.user?.image || '/path/to/default/avatar.png'} 
+    alt={`${authState.user?.username}'s avatar`} 
+    className="ml-2 h-8 w-8 rounded-full"
+  />
+</span>
                   <button
                     onClick={logout}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-full text-white bg-red-600 hover:bg-red-500"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-full text-red-500 "
                   >
-                    Logout
+                    Logout <img src="../svg/logout.svg" alt="" height={25} width={25} className='ml-2'/>
                   </button>
                 </>
               ) : (

@@ -232,7 +232,7 @@ export async function PUT(req: NextRequest) {
         connection.release();
     }
 }
-// Handle DELETE requests
+
 // Handle DELETE requests
 export async function DELETE(req: NextRequest) {
     try {

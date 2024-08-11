@@ -24,6 +24,7 @@
     "react": "^18",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
+    "react-fast-marquee": "^1.6.5",
     "react-toastify": "^10.0.5",
     "use-router": "^0.4.2"
   },

@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 "use client";
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,12 +5,12 @@ import Preloader from '@/components/preloader/preloader';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: { username: string; userid: number } | null;
+  user: { username: string; userid: number; image?: string } | null;
 }
 
 interface AuthContextProps {
   authState: AuthState;
-  login: (user: { username: string; userid: number }) => void;
+  login: (user: { username: string; userid: number; image?: string }) => void;
   logout: () => void;
 }
 
@@ -31,21 +30,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const storedAuthState = localStorage.getItem('authState');
     if (storedAuthState) {
-      setAuthState(JSON.parse(storedAuthState));
+      const parsedAuthState = JSON.parse(storedAuthState);
+      console.log('Loaded authState from localStorage:', parsedAuthState);
+      setAuthState(parsedAuthState);
     }
     setIsInitialized(true); // Mark as initialized
   }, []);
+  
 
-  const login = (user: { username: string; userid: number }) => {
+  const login = (user: { username: string; userid: number; image?: string }) => {
+    console.log('User logging in:', user); // Check what is being passed
     const newAuthState = {
       isAuthenticated: true,
-      user,
+      user: {
+        ...user,
+        image: user.image || '../images/default_user.png', // Ensure a default image is set if undefined
+      },
     };
+    console.log('New authState:', newAuthState); // Check the authState after assignment
     setAuthState(newAuthState);
     localStorage.setItem('authState', JSON.stringify(newAuthState)); // Save to localStorage
     router.push('/dashboard'); // Redirect to dashboard after login
   };
-
+  
   const logout = () => {
     setAuthState(defaultAuthState);
     localStorage.removeItem('authState'); // Remove from localStorage
@@ -71,4 +78,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
