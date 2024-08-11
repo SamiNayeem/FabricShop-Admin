@@ -30,7 +30,7 @@ const Body: React.FC<BodyProps> = ({ product }) => {
     const imageRef = useRef<HTMLImageElement>(null);
 
     const zoomBoxSize = 200; // Size of the zoomed-in area
-
+    
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (containerRef.current && imageRef.current) {
             const container = containerRef.current;
@@ -53,6 +53,10 @@ const Body: React.FC<BodyProps> = ({ product }) => {
         setIsZoomed(toggle);
     };
 
+    const UpdatePageRedirection = () =>{
+        router.push('/update-page/[id]');
+    }
+    
     const handleDeleteProduct = async () => {
         if (confirm('Are you sure you want to delete this product?')) {
             try {
@@ -154,9 +158,9 @@ const Body: React.FC<BodyProps> = ({ product }) => {
                             <div className="mt-4">
                                 <button
                                     className="bg-blue-500 text-white py-2 px-4 rounded-full font-bold hover:bg-blue-600"
-                                    
+                                    onClick={UpdatePageRedirection}
                                 >
-                                    Update Quantity
+                                    Update Product Information
                                 </button>
                             </div>
                         )}
