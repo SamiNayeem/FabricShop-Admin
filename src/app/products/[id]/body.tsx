@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/app/context/auth-context';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import axios from 'axios';
 
 interface Product {
     productmasterid: number;
     name: string;
+    code: string;
     brandName: string;
     price: string;
     availability: string;
@@ -17,20 +18,54 @@ interface Product {
     sizeName: string;
 }
 
-interface BodyProps {
-    product: Product;
-}
-
-const Body: React.FC<BodyProps> = ({ product }) => {
+const Body: React.FC = () => {
     const { authState } = useAuth();
     const router = useRouter();
+    const params = useParams();
+    const id = params.id;
+
+    const [product, setProduct] = useState<Product | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
     const [isZoomed, setIsZoomed] = useState<boolean>(false);
     const [zoomPosition, setZoomPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
 
-    const zoomBoxSize = 200; // Size of the zoomed-in area
-    
+    useEffect(() => {
+        if (id) {
+            axios.get(`/api/product-details?id=${id}`)
+                .then((response) => {
+                    console.log("Full API response:", response.data); // Log full response
+                    if (response.data) {
+                        setProduct(response.data);
+                        console.log("Product Master ID:", response.data.productmasterid);
+                    } else {
+                        setError("Product not found");
+                    }
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    setError(error.message);
+                    setLoading(false);
+                });
+        }
+    }, [id]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    if (!product) {
+        return <div>No product found.</div>;
+    }
+
+    const zoomBoxSize = 200;
+
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (containerRef.current && imageRef.current) {
             const container = containerRef.current;
@@ -53,23 +88,29 @@ const Body: React.FC<BodyProps> = ({ product }) => {
         setIsZoomed(toggle);
     };
 
-    const UpdatePageRedirection = () =>{
-        router.push('/update-page/[id]');
+    const UpdatePageRedirection = () => {
+        if (id) {
+            console.log("Product Master ID:", id); // Ensure this logs the correct ID
+            router.push(`/update-page/${id}`);
+        } else {
+            console.error("Product Master ID is undefined");
+            console.log(id)
+        }
     }
-    
+
     const handleDeleteProduct = async () => {
         if (confirm('Are you sure you want to delete this product?')) {
             try {
                 const response = await axios.delete('/api/products', {
                     data: {
-                        productmasterid: product.productmasterid,
+                        productmasterid: product?.productmasterid,
                         deletedby: authState.user?.userid
                     }
                 });
 
                 if (response.status === 200) {
                     alert('Product deleted successfully.');
-                    router.push('/dashboard'); // Redirect to dashboard after successful deletion
+                    router.push('/dashboard');
                 } else {
                     alert(`Failed to delete product: ${response.data.message}`);
                 }
@@ -117,7 +158,7 @@ const Body: React.FC<BodyProps> = ({ product }) => {
                     <div className="md:flex-1 px-4">
                         <h2 className="text-2xl font-bold text-gray-800">{product.name}</h2>
                         <p className="text-gray-600 text-sm mb-4">
-                            {product.brandName}
+                            {product.code}  {/* Display the product code here */}
                         </p>
                         <div className="flex mb-4">
                             <div className="mr-4">

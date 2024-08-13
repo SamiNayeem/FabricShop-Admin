@@ -13,7 +13,9 @@ export async function GET(req: NextRequest) {
         const [rows] = await pool.query(`
             SELECT 
                 pm.id AS ProductMasterId, 
+                pd.id AS ProductDetailsId,
                 pm.name, 
+                pm.code,
                 pm.description, 
                 pd.price, 
                 c.name AS colorName, 
@@ -36,44 +38,20 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: 'Product not found' }, { status: 404 });
         }
 
-        const product: {
-            ProductMasterId: number | null;
-            name: string;
-            description: string;
-            price: number | null;
-            brandName: string;
-            quantity: number | null;
-            colorName: string[];
-            imageUrls: string[];
-            sizeName: string[];
-            hexcode: string[]
-        } = {
-            ProductMasterId: null,
-            name: '',
-            description: '',
-            price: null,
-            brandName: '',
-            quantity: null,
-            colorName: [],
-            imageUrls: [],
-            sizeName: [],
-            hexcode: []
+        const product = {
+            ProductMasterId: rows[0].ProductMasterId,
+            ProductDetailsId: rows[0].ProductDetailsId,
+            name: rows[0].name,
+            code: rows[0].code,
+            description: rows[0].description,
+            price: rows[0].price,
+            brandName: rows[0].brandName,
+            quantity: rows[0].quantity,
+            colorName: rows.map((row: any) => row.colorName),
+            imageUrls: rows.map((row: any) => row.imageUrl).filter((url: string | null) => url !== null),
+            sizeName: rows.map((row: any) => row.sizeName),
+            hexcode: rows.map((row: any) => row.hexcode)
         };
-
-        rows.forEach((row: any) => {
-            product.ProductMasterId = row.ProductMasterId;
-            product.name = row.name;
-            product.description = row.description;
-            product.price = row.price;
-            product.brandName = row.brandName;
-            product.quantity = row.quantity;
-            product.colorName = row.colorName;
-            product.hexcode = row.hexcode;
-            product.sizeName = row.sizeName;
-            if (row.imageUrl) {
-                product.imageUrls.push(row.imageUrl);
-            }
-        });
 
         return NextResponse.json(product, { status: 200 });
     } catch (error) {
@@ -81,3 +59,5 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+
+
