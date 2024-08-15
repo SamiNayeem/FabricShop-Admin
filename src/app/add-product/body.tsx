@@ -140,9 +140,9 @@ const Body: React.FC = () => {
     <div>
       <ToastContainer />
       <section className="text-gray-600 body-font relative">
-        <div className="container px-5 py-24 mx-auto">
+        <div className="container px-5 py-10 mx-auto">
           <div className="flex flex-col text-center w-full mb-12">
-            <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">Add Product</h1>
+            <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">Add New Product</h1>
           </div>
           <div className="lg:w-1/2 md:w-2/3 mx-auto">
             <form onSubmit={handleSubmit} className="flex flex-wrap -m-2">
