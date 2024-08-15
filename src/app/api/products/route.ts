@@ -114,11 +114,12 @@ export async function POST(req: NextRequest) {
 
 // Handle GET requests
 export async function GET(req: NextRequest) {
+    const search = req.nextUrl.searchParams.get('search') || "";
+
     try {
-        // Fetch product details including inventory and images
-        const [rows] = await pool.query(`
-            SELECT pm.id AS ProductMasterId, pm.name, pm.description, pd.price, s.name as sizename, b.name AS brandname, 
-                   i.url AS imageurl, pi.quantity
+        let query = `
+            SELECT pm.id AS ProductMasterId, pm.name, pm.description, pd.price, s.name as sizename, 
+                   b.name AS brandname, i.url AS imageurl, pi.quantity
             FROM productmaster pm
             JOIN productdetails pd ON pm.id = pd.productmasterid
             JOIN brands b ON pd.brandid = b.id
@@ -126,9 +127,18 @@ export async function GET(req: NextRequest) {
             LEFT JOIN images i ON pm.id = i.productmasterid
             LEFT JOIN productinventory pi ON pd.id = pi.productdetailsid
             WHERE pm.activestatus = 1
-        `);
+        `;
 
-        // Process rows to group images by product
+        const queryParams: any[] = [];
+
+        if (search) {
+            query += ` AND (LOWER(pm.name) LIKE ? OR LOWER(pm.code) LIKE ? OR LOWER(b.name) LIKE ?)`;
+            const searchQuery = `%${search.toLowerCase()}%`;
+            queryParams.push(searchQuery, searchQuery, searchQuery);
+        }
+
+        const [rows] = await pool.query(query, queryParams);
+
         const productsMap = new Map();
 
         rows.forEach((row: any) => {
@@ -139,7 +149,7 @@ export async function GET(req: NextRequest) {
                     ProductMasterId: productMasterId,
                     Name: row.name,
                     Description: row.description,
-                    size: row.sizename,
+                    sizename: row.sizename,
                     Price: row.price,
                     BrandName: row.brandname,
                     Quantity: row.quantity,
@@ -160,6 +170,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+
 
 /// Handle PUT requests
 export async function PUT(req: NextRequest) {

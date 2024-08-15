@@ -1,10 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
-const SearchBar = () => {
-    return (
-      //apply border in the search bar
+const SearchBar = ({ onSearchResults }: { onSearchResults: (products: any[]) => void }) => {
+  const [searchTerm, setSearchTerm] = useState("");
 
-      <div className="max-w-md mx-auto mt-4 ">
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    try {
+      const response = await axios.get(`/api/products`, {
+        params: { search: value }
+      });
+      onSearchResults(response.data.products);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  return (
+    <div className="px-40">
+      <div className="min-w-3/4 max-w-full mx-auto mt-4">
         <div className="relative flex items-center w-full h-12 rounded-lg focus-within:shadow-lg bg-white overflow-hidden">
           <div className="grid place-items-center h-full w-12 text-gray-300 border-2">
             <svg
@@ -22,16 +38,18 @@ const SearchBar = () => {
               />
             </svg>
           </div>
-  
           <input
             className="peer h-full w-full outline-none text-sm px-3 border-2"
             type="text"
             id="search"
             placeholder="Search something.."
+            value={searchTerm}
+            onChange={handleSearch}
           />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+};
 
-  export default SearchBar;
+export default SearchBar;
