@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/app/context/auth-context';
 import { useRouter, useParams } from 'next/navigation';
 import axios from 'axios';
+import Preloader from '@/components/preloader/preloader';
 
 interface Product {
     productmasterid: number;
@@ -53,7 +54,7 @@ const Body: React.FC = () => {
     }, [id]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div><Preloader/></div>;
     }
 
     if (error) {

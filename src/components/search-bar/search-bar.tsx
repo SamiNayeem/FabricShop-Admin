@@ -20,9 +20,9 @@ const SearchBar = ({ onSearchResults }: { onSearchResults: (products: any[]) => 
 
   return (
     <div className="px-40">
-      <div className="min-w-3/4 max-w-full mx-auto mt-4">
+      <div className="min-w-3/4 max-w-full mx-auto mt-4 bg-gray-400">
         <div className="relative flex items-center w-full h-12 rounded-lg focus-within:shadow-lg bg-white overflow-hidden">
-          <div className="grid place-items-center h-full w-12 text-gray-300 border-2">
+          <div className="grid place-items-center h-full w-12 text-gray-300 border-2 border-solid border-gray-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -39,7 +39,7 @@ const SearchBar = ({ onSearchResults }: { onSearchResults: (products: any[]) => 
             </svg>
           </div>
           <input
-            className="peer h-full w-full outline-none text-sm px-3 border-2"
+            className="peer h-full w-full outline-none text-sm px-3 border-2 border-solid border-gray-400"
             type="text"
             id="search"
             placeholder="Search something.."

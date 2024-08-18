@@ -70,7 +70,7 @@ const Body = () =>{
                                 </th>
 
                                 <th scope="col" className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500">
-                                    <span className="">Actions</span>
+                                    <span className="">Contact</span>
                                 </th>
                             </tr>
                         </thead>
@@ -118,13 +118,13 @@ const Body = () =>{
                                     <div className="flex items-center gap-x-6">
                                         {/* this button will redirect user to the specific users profile */}
                                         
-                                        <button className="text-gray-500 transition-colors duration-200  hover:text-indigo-500 focus:outline-none">
-                                            Profile
+                                        <button className="text-blue-500 transition-colors duration-200  hover:text-indigo-700 focus:outline-none">
+                                            {user.email}
                                         </button>
 
-                                        <button className="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none" onClick={handleContactBtn}>
+                                        {/* <button className="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none" onClick={handleContactBtn}>
                                             Contact
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </td>
                             </tr>
@@ -136,7 +136,7 @@ const Body = () =>{
         </div>
     </div>
 
-    <div className="flex items-center justify-between mt-6">
+    {/* <div className="flex items-center justify-between mt-6">
         <a href="#" className="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 rtl:-scale-x-100">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
@@ -147,7 +147,7 @@ const Body = () =>{
             </span>
         </a>
 
-        {/* <div className="items-center hidden md:flex gap-x-3">
+        <div className="items-center hidden md:flex gap-x-3">
             <a href="#" className="px-2 py-1 text-sm text-blue-500 rounded-md bg-blue-100/60">1</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">2</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">3</a>
@@ -155,7 +155,7 @@ const Body = () =>{
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">12</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">13</a>
             <a href="#" className="px-2 py-1 text-sm text-gray-500 rounded-md">14</a>
-        </div> */}
+        </div>
 
         <a href="#" className="flex items-center px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100">
             <span>
@@ -166,7 +166,7 @@ const Body = () =>{
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
             </svg>
         </a>
-    </div>
+    </div> */}
 </section>
         </div>
     )

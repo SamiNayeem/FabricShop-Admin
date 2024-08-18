@@ -1,28 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 const pool = require('@/config/db');
 
-// type ProductDescription = {
-//     name: string;
-//     code: string;
-//     description: string;
-//     createdby?: number;
-//     categoryid: number;
-//     colorid: number;
-//     sizeid: number;
-//     brandid: number;
-//     imageurl?: string[];
-//     quantity?: number;
-//     searchkey?: string;
-//     sorttype?: string;
-//     productmasterid?: number;
-//     productdetailsid?: number;
-//     updatedby?: number;
-//     deletedby?: number;
-//     costprice: number;
-//     price: number;
-
-    
-// }
 
 type ProductDescription = {
     name: string;
@@ -44,13 +22,14 @@ type ProductDescription = {
     costprice: number;
     price: number;
 }
-// Handle POST requests
+
+
 export async function POST(req: NextRequest) {
     const {
         name, code, description, createdby,
         categoryid, colorid, sizeid, brandid,
         imageurl, costprice, price, quantity
-    } = await req.json() as ProductDescription;
+    } = await req.json();
 
     if (!name || !code || !description || createdby === undefined || !categoryid || !colorid || !sizeid || !brandid || costprice === undefined || price === undefined) {
         return NextResponse.json({ message: 'All required fields must be provided' }, { status: 400 });
@@ -60,16 +39,6 @@ export async function POST(req: NextRequest) {
 
     try {
         await connection.beginTransaction();
-
-        // Check for duplicate products
-        const [duplicateProductResult] = await connection.execute(
-            `SELECT COUNT(*) AS count FROM productmaster WHERE LOWER(code) = LOWER(?)`,
-            [code]
-        );
-        if (duplicateProductResult[0].count > 0) {
-            await connection.rollback();
-            return NextResponse.json({ message: 'Product already exists' }, { status: 400 });
-        }
 
         // Insert into productmaster
         const [productMasterResult] = await connection.execute(
@@ -85,7 +54,7 @@ export async function POST(req: NextRequest) {
         );
         const productDetailsId = productDetailsResult.insertId;
 
-        // Insert images
+        // Insert images with their file paths
         if (imageurl && imageurl.length > 0) {
             const insertImages = `INSERT INTO images (url, productmasterid, productdetailsid, createdby, createdat) VALUES (?, ?, ?, ?, NOW())`;
             for (const url of imageurl) {
@@ -111,6 +80,7 @@ export async function POST(req: NextRequest) {
         connection.release();
     }
 }
+
 
 // Handle GET requests
 export async function GET(req: NextRequest) {

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../context/auth-context"; // Adjust the path as needed
 import ProductCard from "@/components/product-card/product-card";
 import SearchBar from "@/components/search-bar/search-bar";
+import Preloader from "@/components/preloader/preloader";
 
 interface Product {
   ProductMasterId: number;
@@ -48,16 +49,17 @@ const Body: React.FC = () => {
   }, [authState.isAuthenticated, router]);
 
   if (!authState.isAuthenticated) {
-    return <div>Loading...</div>; // You can show a loading state or redirect immediately
+    return <div><Preloader/></div>; // You can show a loading state or redirect immediately
   }
 
   if (loading) {
-    return <div>Loading products...</div>; // Loading state for fetching products
+    return <div><Preloader/></div>; // Loading state for fetching products
   }
 
   if (error) {
     return <div>Error: {error}</div>; // Error state for fetching products
   }
+
 
   return (
     <div className="container mx-auto px-4 py-8">

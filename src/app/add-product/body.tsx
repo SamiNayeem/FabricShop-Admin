@@ -33,7 +33,7 @@ type FormData = {
   colorid: number;
   sizeid: number;
   brandid: number;
-  imageurl: string[];
+  imageurl: string[]; // This will store the URLs of the uploaded images
   quantity: number;
   costprice: number;
   price: number;
@@ -86,28 +86,31 @@ const Body: React.FC = () => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      try {
-        const uploadPromises = filesArray.map(async (file) => {
-          const formData = new FormData();
-          formData.append('file', file);
-          const response = await axios.post('/api/upload', formData, {
+      const files = Array.from(e.target.files);
+      const uploadedImageUrls: string[] = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await axios.post('/api/uploads', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           });
-          return response.data.url; // Assuming the server responds with the URL
-        });
 
-        const imageUrls = await Promise.all(uploadPromises);
-        setFormData(prevState => ({ ...prevState, imageurl: imageUrls }));
-      } catch (error) {
-        console.error('Error uploading files:', error);
-        toast.error('Failed to upload images. Please try again.', {
-          autoClose: 1000,
-          transition: Slide,
-        });
+          uploadedImageUrls.push(response.data.url); // Assuming the server returns the uploaded file URL
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          toast.error('Failed to upload image. Please try again.', {
+            autoClose: 2000,
+            transition: Slide,
+          });
+        }
       }
+
+      setFormData(prevState => ({ ...prevState, imageurl: [...prevState.imageurl, ...uploadedImageUrls] }));
     }
   };
 
