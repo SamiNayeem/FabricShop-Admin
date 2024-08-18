@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-const pool = require('@/config/db')
+const pool = require('@/config/db');
 
 export async function PUT(req: NextRequest, { params }: { params: { id: number } }) {
     const productId = params.id;
-    
+
+    // Parse the incoming request body
     const {
         name, code, description, updatedby,
         categoryid, colorid, sizeid, brandid,
         imageurl, costprice, price, quantity
     } = await req.json();
 
-    if (!productId || !name || !code || !description || updatedby === undefined || !categoryid || !colorid || !sizeid || !brandid || costprice === undefined || price === undefined) {
+    // Log received data for debugging
+    console.log('Received Data:', {
+        productId, name, code, description, updatedby,
+        categoryid, colorid, sizeid, brandid,
+        imageurl, costprice, price, quantity
+    });
+
+    // Validate required fields
+    if (!productId || !name || !code || !description || updatedby === undefined || 
+        !categoryid || !colorid || !sizeid || !brandid || costprice === undefined || 
+        price === undefined) {
         return NextResponse.json({ message: 'All required fields must be provided' }, { status: 400 });
     }
 
@@ -20,7 +31,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: number }
         await connection.beginTransaction();
 
         // Deactivate the current product in productmaster
-        await connection.execute(
+        const deactivateProduct = await connection.execute(
             `UPDATE productmaster SET activestatus = 0 WHERE id = ?`,
             [productId]
         );
@@ -30,6 +41,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: number }
             `INSERT INTO productmaster (name, code, description, createdby, createdat) VALUES (?, ?, ?, ?, NOW())`,
             [name, code, description, updatedby]
         );
+
+        // Ensure productMasterResult has insertId
+        if (!productMasterResult || !productMasterResult.insertId) {
+            throw new Error('Failed to insert into productmaster');
+        }
+
         const newProductMasterId = productMasterResult.insertId;
 
         // Insert into productdetails with updated data
@@ -37,6 +54,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: number }
             `INSERT INTO productdetails (productmasterid, categoryid, colorid, sizeid, brandid, createdby, createdat, price, costprice) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)`,
             [newProductMasterId, categoryid, colorid, sizeid, brandid, updatedby, price, costprice]
         );
+
+        // Ensure productDetailsResult has insertId
+        if (!productDetailsResult || !productDetailsResult.insertId) {
+            throw new Error('Failed to insert into productdetails');
+        }
+
         const newProductDetailsId = productDetailsResult.insertId;
 
         // Insert images with updated data
@@ -59,8 +82,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: number }
         return NextResponse.json({ message: 'Product updated successfully' }, { status: 200 });
     } catch (error) {
         await connection.rollback();
-        console.error('Error updating product:', error);
-        return NextResponse.json({ message: 'Error updating product' }, { status: 500 });
+        console.error('Error updating product:',);
+        return NextResponse.json({ message: 'Error updating product'}, { status: 500 });
     } finally {
         connection.release();
     }

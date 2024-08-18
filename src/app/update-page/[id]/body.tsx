@@ -14,10 +14,10 @@ type FormData = {
   name: string;
   code: string;
   description: string;
-  categoryid: number;
-  colorid: number;
-  sizeid: number;
-  brandid: number;
+  categoryid: number | string;
+  colorid: number | string;
+  sizeid: number | string;
+  brandid: number | string;
   imageurl: string[];
   quantity: number;
   costprice: number;
@@ -39,18 +39,17 @@ const Body: React.FC = () => {
     name: '',
     code: '',
     description: '',
-    categoryid: 0,
-    colorid: 0,
-    sizeid: 0,
-    brandid: 0,
+    categoryid: '',
+    colorid: '',
+    sizeid: '',
+    brandid: '',
     imageurl: [],
     quantity: 0,
     costprice: 0,
     price: 0,
     updatedby: authState.user?.userid,
   });
-
-  const [newImages, setNewImages] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async (url: string, setState: React.Dispatch<React.SetStateAction<any[]>>) => {
@@ -61,24 +60,24 @@ const Body: React.FC = () => {
         console.error(`Error fetching data from ${url}:`, error);
       }
     };
-
+  
     const fetchProductDetails = async () => {
       try {
         const response = await axios.get(`/api/product-details?id=${id}`);
         const product = response.data;
 
         setFormData({
-          name: product.name,
-          code: product.code,
-          description: product.description,
-          categoryid: product.categoryid,
-          colorid: product.colorid,
-          sizeid: product.sizeid,
-          brandid: product.brandid,
-          imageurl: product.imageUrls || [], // Assuming imageUrls is the correct field name
-          quantity: product.quantity,
-          costprice: product.costprice,
-          price: product.price,
+          name: product.name || '',
+          code: product.code || '',
+          description: product.description || '',
+          categoryid: product.categoryid || '',  // Set current categoryid
+          colorid: product.colorid || '',        // Set current colorid
+          sizeid: product.sizeid || '',          // Set current sizeid
+          brandid: product.brandid || '',        // Set current brandid
+          imageurl: product.imageUrls || [],
+          quantity: product.quantity || 0,
+          costprice: product.costprice || 0,
+          price: product.price || 0,
           updatedby: authState.user?.userid,
         });
       } catch (error) {
@@ -89,7 +88,7 @@ const Body: React.FC = () => {
         });
       }
     };
-
+  
     fetchData('/api/categories', setCategories);
     fetchData('/api/colors', setColors);
     fetchData('/api/sizes', setSizes);
@@ -99,38 +98,46 @@ const Body: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({ ...prevState, [name]: value }));
+
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      try {
-        const uploadPromises = filesArray.map(async (file) => {
-          const formData = new FormData();
-          formData.append('file', file);
-          const response = await axios.post('/api/upload', formData, {
+      const files = Array.from(e.target.files);
+      const uploadedImageUrls: string[] = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await axios.post(`/api/uploads/${id}`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           });
-          return response.data.url;
-        });
 
-        const imageUrls = await Promise.all(uploadPromises);
-        setFormData(prevState => ({ ...prevState, imageurl: imageUrls }));
-      } catch (error) {
-        console.error('Error uploading files:', error);
-        toast.error('Failed to upload images. Please try again.', {
-          autoClose: 1000,
-          transition: Slide,
-        });
+          uploadedImageUrls.push(response.data.url);
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          toast.error('Failed to upload image. Please try again.', {
+            autoClose: 2000,
+            transition: Slide,
+          });
+        }
       }
+
+      setFormData(prevState => ({ ...prevState, imageurl: [...prevState.imageurl, ...uploadedImageUrls] }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const updatedFormData = { ...formData, updatedby: authState.user?.userid };
       const response = await axios.put(`/api/product-details/${id}`, updatedFormData, {
@@ -151,6 +158,8 @@ const Body: React.FC = () => {
         autoClose: 1000,
         transition: Slide,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -219,7 +228,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value={0}>Select Category</option>
+                    <option value="" disabled>Select Category</option>
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>{category.name}</option>
                     ))}
@@ -238,7 +247,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value={0}>Select Color</option>
+                    <option value="" disabled>Select Color</option>
                     {colors.map(color => (
                       <option key={color.id} value={color.id}>{color.name}</option>
                     ))}
@@ -257,7 +266,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value={0}>Select Size</option>
+                    <option value="" disabled>Select Size</option>
                     {sizes.map(size => (
                       <option key={size.id} value={size.id}>{size.name}</option>
                     ))}
@@ -276,7 +285,7 @@ const Body: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   >
-                    <option value={0}>Select Brand</option>
+                    <option value="" disabled>Select Brand</option>
                     {brands.map(brand => (
                       <option key={brand.id} value={brand.id}>{brand.name}</option>
                     ))}
@@ -338,7 +347,6 @@ const Body: React.FC = () => {
                     id="imageurl"
                     name="imageurl"
                     multiple
-                    max={3}
                     accept=".jpg, .png, .jpeg, .gif"
                     onChange={handleFileChange}
                     className="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
@@ -348,7 +356,9 @@ const Body: React.FC = () => {
 
               {/* Submit Button */}
               <div className="p-2 w-full">
-                <button type="submit" className="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">Update</button>
+                <button type="submit" className="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg" disabled={loading}>
+                  {loading ? 'Updating...' : 'Update'}
+                </button>
               </div>
             </form>
           </div>

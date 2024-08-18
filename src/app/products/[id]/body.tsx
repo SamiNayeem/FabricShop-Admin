@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/auth-context';
 import { useRouter, useParams } from 'next/navigation';
 import axios from 'axios';
 import Preloader from '@/components/preloader/preloader';
+import Slider from "react-slick";
+
+// Import slick carousel styles
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 interface Product {
     productmasterid: number;
@@ -19,6 +24,49 @@ interface Product {
     sizeName: string;
 }
 
+// Custom arrow component for slick slider
+const NextArrow = (props: any) => {
+    const { onClick } = props;
+    return (
+        <div
+            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-100 p-2 rounded-full cursor-pointer z-10"
+            onClick={onClick}
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-gray-800"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+            >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        </div>
+    );
+};
+
+const PrevArrow = (props: any) => {
+    const { onClick } = props;
+    return (
+        <div
+            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-100 p-2 rounded-full cursor-pointer z-10"
+            onClick={onClick}
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-gray-800"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+            >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+        </div>
+    );
+};
+
 const Body: React.FC = () => {
     const { authState } = useAuth();
     const router = useRouter();
@@ -28,19 +76,13 @@ const Body: React.FC = () => {
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [isZoomed, setIsZoomed] = useState<boolean>(false);
-    const [zoomPosition, setZoomPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-    const containerRef = useRef<HTMLDivElement>(null);
-    const imageRef = useRef<HTMLImageElement>(null);
 
     useEffect(() => {
         if (id) {
             axios.get(`/api/product-details?id=${id}`)
                 .then((response) => {
-                    console.log("Full API response:", response.data); // Log full response
                     if (response.data) {
                         setProduct(response.data);
-                        console.log("Product Master ID:", response.data.productmasterid);
                     } else {
                         setError("Product not found");
                     }
@@ -54,7 +96,7 @@ const Body: React.FC = () => {
     }, [id]);
 
     if (loading) {
-        return <div><Preloader/></div>;
+        return <div><Preloader /></div>;
     }
 
     if (error) {
@@ -65,39 +107,13 @@ const Body: React.FC = () => {
         return <div>No product found.</div>;
     }
 
-    const zoomBoxSize = 200;
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (containerRef.current && imageRef.current) {
-            const container = containerRef.current;
-            const { left: containerLeft, top: containerTop } = container.getBoundingClientRect();
-            const mouseX = e.clientX - containerLeft;
-            const mouseY = e.clientY - containerTop;
-            const { width: containerWidth, height: containerHeight } = container.getBoundingClientRect();
-            const { width: imageWidth, height: imageHeight } = imageRef.current;
-            const zoomX = (mouseX / containerWidth) * imageWidth;
-            const zoomY = (mouseY / containerHeight) * imageHeight;
-
-            setZoomPosition({
-                x: Math.min(Math.max(zoomX - zoomBoxSize / 2, 0), imageWidth - zoomBoxSize),
-                y: Math.min(Math.max(zoomY - zoomBoxSize / 2, 0), imageHeight - zoomBoxSize)
-            });
-        }
-    };
-
-    const toggleZoom = (toggle: boolean) => {
-        setIsZoomed(toggle);
-    };
-
-    const UpdatePageRedirection = () => {
+    const updatePageRedirection = () => {
         if (id) {
-            console.log("Product Master ID:", id); // Ensure this logs the correct ID
             router.push(`/update-page/${id}`);
         } else {
             console.error("Product Master ID is undefined");
-            console.log(id)
         }
-    }
+    };
 
     const handleDeleteProduct = async () => {
         if (confirm('Are you sure you want to delete this product?')) {
@@ -122,44 +138,40 @@ const Body: React.FC = () => {
         }
     };
 
-    const imageUrl = product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/images/Image_not_available.png';
+    // Carousel settings
+    const settings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        nextArrow: <NextArrow />,
+        prevArrow: <PrevArrow />,
+    };
 
     return (
         <main className="py-8 mx-10 w-full px-10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 border-2 py-8">
                 <div className="flex flex-col md:flex-row -mx-4">
                     <div className="md:flex-1 px-4">
-                        <div
-                            className="h-[460px] rounded-lg bg-gray-300 mb-4 relative overflow-hidden"
-                            ref={containerRef}
-                            onMouseMove={handleMouseMove}
-                            onMouseEnter={() => toggleZoom(true)}
-                            onMouseLeave={() => toggleZoom(false)}
-                        >
-                            <img
-                                ref={imageRef}
-                                src={imageUrl}
-                                className="w-full h-full object-cover"
-                                alt="Product Image"
-                            />
-                            {isZoomed && imageRef.current && (
-                                <div
-                                    className="absolute w-[200px] h-[200px] border border-gray-300 pointer-events-none"
-                                    style={{
-                                        left: zoomPosition.x,
-                                        top: zoomPosition.y,
-                                        backgroundImage: `url(${imageUrl})`,
-                                        backgroundSize: `${imageRef.current.width}px ${imageRef.current.height}px`,
-                                        backgroundPosition: `-${zoomPosition.x}px -${zoomPosition.y}px`,
-                                    }}
-                                />
-                            )}
+                        <div className="max-h-[400px] h-full rounded-lg  mb-4 relative overflow-hidden max-w-[500px]">
+                            <Slider {...settings}>
+                                {product.imageUrls.map((url, index) => (
+                                    <div key={index} className="flex justify-center items-center">
+                                        <img
+                                            src={url}
+                                            className="object-contain max-h-[400px] w-[500px]"
+                                            alt={`Product Image ${index + 1}`}
+                                        />
+                                    </div>
+                                ))}
+                            </Slider>
                         </div>
                     </div>
                     <div className="md:flex-1 px-4">
                         <h2 className="text-2xl font-bold text-gray-800">{product.name}</h2>
                         <p className="text-gray-600 text-sm mb-4">
-                            {product.code}  {/* Display the product code here */}
+                            {product.code}
                         </p>
                         <div className="flex mb-4">
                             <div className="mr-4">
@@ -200,10 +212,11 @@ const Body: React.FC = () => {
                             <div className="mt-4">
                                 <button
                                     className="bg-blue-500 text-white py-2 px-4 rounded-full font-bold hover:bg-blue-600"
-                                    onClick={UpdatePageRedirection}
+                                    onClick={updatePageRedirection}
                                 >
                                     Update Product Information
                                 </button>
+                                
                             </div>
                         )}
                     </div>

@@ -4,9 +4,12 @@ const pool = require('@/config/db');
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    console.log(id)
 
     if (!id) {
+
         return NextResponse.json({ message: 'Product ID is required' }, { status: 400 });
+        
     }
 
     try {
@@ -49,10 +52,10 @@ export async function GET(req: NextRequest) {
             price: rows[0].price,
             brandName: rows[0].brandName,
             quantity: rows[0].quantity,
-            colorName: rows.map((row: any) => row.colorName),
+            colorName: rows[0].colorName,
             imageUrls: rows.map((row: any) => row.imageUrl).filter((url: string | null) => url !== null),
-            sizeName: rows.map((row: any) => row.sizeName),
-            hexcode: rows.map((row: any) => row.hexcode)
+            sizeName: rows[0].sizeName,
+            hexcode: rows[0].hexcode
         };
 
         return NextResponse.json(product, { status: 200 });
